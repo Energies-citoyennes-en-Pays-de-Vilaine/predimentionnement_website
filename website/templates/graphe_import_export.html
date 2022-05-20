@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="main.css">
+	<script src="graphes.js"></script>
+	<script>
+		window.addEventListener("load", function(){
+			window.generateForm("import_export", window.GRAPH_2D_STATIC,
+			[
+				window.setFloatParam("solar_power", "Puissance moyenne de la production solaire (MW) ", 3.44),
+				window.setFloatParam("bioenergy_power", "Puissance moyenne de la production bio-énergétique (MW) ", 2.07),
+				window.setFloatParam("wind_tubine_prod", "Puissance moyenne de la production d'une éolienne (MW) ", 0.577),
+				window.setIntParam("wind_turbine_count", "Nombre d'éoliennes ", 13),
+				window.setBoolParam("has_battery", "Stockage présent ", false),
+				window.setFloatParam("battery_capacity", "Stockage installé (MWh) ", 2),
+			])
+		})
+	</script>
+	<title>graphes import export</title>
+</head>
+<body>
+	<div class="singlegraphstatic" id="import_export">
+
+	</div>
+</body>
+</html>

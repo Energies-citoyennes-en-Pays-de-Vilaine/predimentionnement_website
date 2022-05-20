@@ -18,7 +18,7 @@ def get_import_export_curves(request:HttpRequest, simParams : SimParams) -> Tupl
 	wind_turbine_count   = get_int_param  (request, "wind_turbine_count", config.NB_EOLIENNE)
 	solar_power          = get_float_param(request, "solar_power", config.SOLAR_TOTAL_PROD / (365 * 24))
 	bioenergy_power      = get_float_param(request, "bioenergy_power", config.BIOENERGY_TOTAL_PROD / (365 * 24))
-	total_pop            = get_int_param  (request, "total_pow", (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION))
+	total_pop            = get_int_param  (request, "total_pop", (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION))
 	has_battery          = get_bool_param (request, "has_battery", config.HAS_BATTERY)
 	battery_capacity     = get_float_param(request, "battery_capacity", config.BATTERY_CAPACITY)
 	scaling_factor       = 1e6 / total_pop # converts power into watt per user

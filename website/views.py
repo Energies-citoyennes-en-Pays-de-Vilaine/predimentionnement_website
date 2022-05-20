@@ -18,6 +18,8 @@ def static_files(request: HttpRequest, name:str) -> HttpResponse:
 		response = render(request, name)
 		if (name.split(".")[-1] == "css"):
 			response["Content-Type"] = "text/css"
+		if (name.split(".")[-1] == "js"):
+			response["Content-Type"] = "application/javascript"
 		return response
 	response = render(request, "404.html")
 	response.status_code = 404

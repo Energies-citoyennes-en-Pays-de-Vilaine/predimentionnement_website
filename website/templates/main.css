@@ -9,3 +9,26 @@
 	display: inline-block;
 	width: 300px;
 }
+.singlegraphstatic{
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+.img.singlegraphstatic{
+	display: inline-block;
+
+	width: 55%;
+	height: 100%;
+}
+.img.singlegraphstatic>img{
+	width: 100%;
+}
+.controls.singlegraphstatic{
+	position: absolute;
+	display: inline-block;
+	right: 0;
+	top: 0;
+	width:45%;
+	height: 100%;
+	background-color: aquamarine;
+}
