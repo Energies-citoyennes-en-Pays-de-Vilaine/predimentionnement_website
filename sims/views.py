@@ -6,30 +6,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import io
 import sims.modules.predim.configuration as conf
+import sims.modules.predim.sim as SimModule
 from . import *
+import sims.graphs.importexport as impexp
 # Create your views here.
-def get_bool_param(request : HttpRequest, param_name : str, defaultValue : bool) -> bool:
-	value = request.GET.get(param_name)
-	if (value == None):
-		return defaultValue
-	else:
-		if (value == "true" or value == 1 or value == "True"):
-			return True
-		return False
-
-def get_int_param(request : HttpRequest, param_name : str, defaultValue : int) -> int:
-	value = request.GET.get(param_name)
-	if (value == None):
-		return defaultValue
-	else:
-		return int(value)
-
-def get_float_param(request : HttpRequest, param_name : str, defaultValue : float) -> float:
-	value = request.GET.get(param_name)
-	if (value == None):
-		return defaultValue
-	else:
-		return float(value)
+from sims.utils import *
 
 def prepareData(request: HttpRequest):
 	nb_eol          = get_float_param(request, "nb_eol",  float(conf.NB_EOLIENNE))
@@ -94,3 +75,20 @@ def ie(request : HttpRequest) -> HttpResponse:
 	response = HttpResponse(buf.read())
 	response["Content-Type"] = "image/png"
 	return response
+
+def importexportView(request : HttpRequest) -> HttpResponse:
+	basic_sim_params = get_ressource("basic_sim_params")
+	(importe, exporte, import_ratio) = impexp.get_import_export_curves(request=request, simParams=basic_sim_params)
+	buf = io.BytesIO()
+	fig, subplots = plt.subplots(2,1)
+	subplots[0].plot(importe.dates, importe.get_rolling_average(24).power,'r', label="imported power")
+	subplots[0].plot(exporte.dates, exporte.get_rolling_average(24).power, 'c', label="exported power")
+	subplots[0].legend(loc='best')
+	subplots[1].plot(import_ratio.dates, import_ratio.get_rolling_average(24).power, label="import ratio")
+	subplots[1].legend(loc='best')
+	fig.savefig(buf, format="png")
+	buf.seek(0)
+	response = HttpResponse(buf.read())
+	response["Content-Type"] = "image/png"
+	return response
+
