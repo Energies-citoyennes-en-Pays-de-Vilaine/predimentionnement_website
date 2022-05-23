@@ -5,7 +5,7 @@ from sims.utils import get_bool_param, get_float_param, get_int_param, get_date_
 from django.http import HttpRequest,HttpResponse
 from ..modules.predim.configuration import config
 
-def get_import_export_curves(request:HttpRequest, simParams : SimParams) -> Tuple[PowerData, PowerData, PowerData]:
+def get_import_export_curves(request:HttpRequest, simParams : SimParams) -> Tuple[PowerData, PowerData, PowerData, PowerData, PowerData]:
 	#import, export, needed import ratio
 	#get config for this problem
 	prod_per_windturbine      = get_float_param(request, "wind_tubine_prod", config.PROD_PER_WINDTURBINE)

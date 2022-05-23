@@ -11,6 +11,7 @@ from . import *
 import sims.graphs.importexport as impexp
 # Create your views here.
 from sims.utils import *
+import json
 
 def prepareData(request: HttpRequest):
 	nb_eol          = get_float_param(request, "nb_eol",  float(conf.NB_EOLIENNE))
@@ -97,4 +98,14 @@ def importexportView(request : HttpRequest) -> HttpResponse:
 def importexportAPI(request : HttpRequest) -> HttpResponse:
 	basic_sim_params : SimParams = get_ressource("basic_sim_params")
 	(importe, exporte, import_export_ratio, production_before_battery, battery_charge) = impexp.get_import_export_curves(request, basic_sim_params)
-	get_date_param(request, "begin", None)
+	responseData = json.dumps({
+		"dates"                     : dateToJsonData(importe.dates),
+		"imported_energy"           : importe.power.tolist(),
+		"exported_energy"           : exporte.power.tolist(),
+		"import_ratio"              : import_export_ratio.power.tolist(),
+		"production_before_battery" : production_before_battery.power.tolist(),
+		"battery_charge"            : battery_charge.power.tolist()
+	})
+	response = HttpResponse(responseData)
+	response["Content-Type"] = "application/JSON"
+	return response
