@@ -1,7 +1,7 @@
 from typing import *
 from ..modules.predim.sim import SimParams, SimResults, simulate_senario, PowerData
 import matplotlib.pyplot as plt
-from sims.utils import get_bool_param, get_float_param, get_int_param, get_date_param
+from sims.utils import get_bool_param, get_float_param, get_int_param, get_date_param, printw
 from django.http import HttpRequest,HttpResponse
 from ..modules.predim.configuration import config
 
