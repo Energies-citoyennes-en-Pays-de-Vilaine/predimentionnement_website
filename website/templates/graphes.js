@@ -1,5 +1,5 @@
 window.GRAPH_2D_STATIC = "2dimg"
-window.generateForm = function(docid, graphType, params){
+window.generateForm = function(docid, graphType, params, actualize){
 	slot = document.getElementById(docid)
 	controls = null
 	imgToPut = null
@@ -15,21 +15,6 @@ window.generateForm = function(docid, graphType, params){
 		slot.appendChild(imgdiv)
 		slot.appendChild(controls)
 	}
-	function actualize(){
-		console.log("change")
-		values = []
-		for (param of params){
-			if (param.valueType == "bool")
-			{
-				elem = document.getElementById(param.paramName)
-				values.push(param.paramName + "=" + elem.checked)
-				continue
-			}
-			elem = document.getElementById(param.paramName)
-			values.push(param.paramName + "=" + elem.value)
-		}
-		imgToPut.src = "/sims/graphs/ie2?" + values.join("&")
-	}
 	for (param of params){
 		if (param.valueType == "int"){
 			div = document.createElement("div")
@@ -39,7 +24,7 @@ window.generateForm = function(docid, graphType, params){
 			input.type = param.formType
 			input.value = param.defaultValue
 			input.id = param.paramName
-			input.addEventListener("change", actualize)
+			input.addEventListener("change", actualize(params))
 			div.appendChild(divtext)
 			div.appendChild(input)
 			controls.appendChild(div)
@@ -53,7 +38,7 @@ window.generateForm = function(docid, graphType, params){
 			input.value = param.defaultValue
 			input.step = 0.01
 			input.id = param.paramName
-			input.addEventListener("change", actualize)
+			input.addEventListener("change", actualize(params))
 			div.appendChild(divtext)
 			div.appendChild(input)
 			controls.appendChild(div)
@@ -67,7 +52,7 @@ window.generateForm = function(docid, graphType, params){
 			input.checked = param.defaultValue
 			input.step = 0.01
 			input.id = param.paramName
-			input.addEventListener("change", actualize)
+			input.addEventListener("change", actualize(params))
 			div.appendChild(divtext)
 			div.appendChild(input)
 			controls.appendChild(div)
@@ -80,7 +65,7 @@ window.generateForm = function(docid, graphType, params){
 			input.type = param.formType
 			input.value = param.defaultValue
 			input.id = param.paramName
-			input.addEventListener("change", actualize)
+			input.addEventListener("change", actualize(params))
 			div.appendChild(divtext)
 			div.appendChild(input)
 			controls.appendChild(div)
