@@ -78,17 +78,21 @@ def ie(request : HttpRequest) -> HttpResponse:
 
 def importexportView(request : HttpRequest) -> HttpResponse:
 	basic_sim_params = get_ressource("basic_sim_params")
-	(importe, exporte, import_ratio) = impexp.get_import_export_curves(request=request, simParams=basic_sim_params)
+	(importe, exporte, import_ratio) = impexp.get_import_export_curves(request=request, simParams=basic_sim_params)[:3]
 	buf = io.BytesIO()
 	fig, subplots = plt.subplots(2,1)
-	subplots[0].plot(importe.dates, importe.get_rolling_average(24).power,'r', label="imported power")
-	subplots[0].plot(exporte.dates, exporte.get_rolling_average(24).power, 'c', label="exported power")
+	subplots[0].plot(importe.dates, importe.power,'r', label="imported power")
+	subplots[0].plot(exporte.dates, exporte.power, 'c', label="exported power")
 	subplots[0].legend(loc='best')
-	subplots[1].plot(import_ratio.dates, import_ratio.get_rolling_average(24).power, label="import ratio")
+	subplots[1].plot(import_ratio.dates, import_ratio.power, label="import ratio")
 	subplots[1].legend(loc='best')
 	fig.savefig(buf, format="png")
 	buf.seek(0)
 	response = HttpResponse(buf.read())
-	response["Content-Type"] = "image/png"
+	response["Content-Type"] = "image/png"	
 	return response
 
+def importexportAPI(request : HttpRequest) -> HttpResponse:
+	basic_sim_params : SimParams = get_ressource("basic_sim_params")
+	(importe, exporte, import_export_ratio, production_before_battery, battery_charge) = impexp.get_import_export_curves(request, basic_sim_params)
+	get_date_param(request, "begin", None)
