@@ -53,15 +53,14 @@ def get_date_param(request: HttpRequest, param_name : str, defaultValue : dateti
 		value = request.GET.get(param_name)
 		if (value == None):
 			return defaultValue
-	else:
+	try:
+		return datetime.strptime(value, "%Y-%m-%d:%H:%M") 
+	except ValueError:
 		try:
-			return datetime.strptime(value, "%Y-%m-%d:%H:%M") 
-		except ValueError:
-			try:
-				return datetime.strptime(value, "%Y-%m-%d")
-			except ValueError as e:
-				printw(f"incorrect date has been provided by user in param '{param_name}' : {e}, defaulting to {defaultValue}")
-				return defaultValue
+			return datetime.strptime(value, "%Y-%m-%d")
+		except ValueError as e:
+			printw(f"incorrect date has been provided by user in param '{param_name}' : {e}, defaulting to {defaultValue}")
+			return defaultValue
 
 def dateToJsonData(dates : List[datetime]) -> List[str]:
 	dateToReturn = [datetime.strftime(d, "%Y-%m-%d:%H:%M") for d in dates]
