@@ -72,6 +72,19 @@ window.generateForm = function(docid, graphType, params){
 			div.appendChild(input)
 			controls.appendChild(div)
 		}
+		if (param.valueType == "date"){
+			div = document.createElement("div")
+			divtext = document.createElement("span")
+			divtext.innerText = param.description
+			input = document.createElement("input")
+			input.type = param.formType
+			input.value = param.defaultValue
+			input.id = param.paramName
+			input.addEventListener("change", actualize)
+			div.appendChild(divtext)
+			div.appendChild(input)
+			controls.appendChild(div)
+		}
 	}
 }
 window.setIntParam = function(paramName, description, defaultValue = 5, formType = "number")
@@ -85,4 +98,8 @@ window.setFloatParam = function(paramName, description, defaultValue = 5.1, form
 window.setBoolParam = function(paramName, description, defaultValue = true, formType = "checkbox")
 {
 	return {paramName, description, defaultValue, formType, valueType : "bool"}
+}
+window.setDateParam = function(paramName, description, defaultValue = "2020-01-01", formType = "date")
+{
+	return {paramName, description, defaultValue, formType, valueType : "date"}
 }

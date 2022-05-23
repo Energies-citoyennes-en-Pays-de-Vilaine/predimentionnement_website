@@ -16,6 +16,11 @@
 				window.setIntParam("wind_turbine_count", "Nombre d'éoliennes ", 13),
 				window.setBoolParam("has_battery", "Stockage présent ", false),
 				window.setFloatParam("battery_capacity", "Stockage installé (MWh) ", 2),
+				window.setBoolParam("has_ra", "Moyenne glissante ", true),
+				window.setFloatParam("ra_period", "Période sur laquelle la moyenne glissante est effectuée(H)", 24),
+				window.setDateParam("begin", "Date de départ de la simulation ", "2020-01-01"),
+				window.setDateParam("end", "Date de fin de la simulation ", "2022-01-01"),
+				window.setBoolParam("slice_after_sim", "Simuler sur toutes les données", true),
 			])
 		})
 	</script>

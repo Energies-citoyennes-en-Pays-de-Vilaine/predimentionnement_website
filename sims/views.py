@@ -71,6 +71,7 @@ def ie(request : HttpRequest) -> HttpResponse:
 	subplot.plot(e_i.dates, e_i.power)
 	subplot.plot(e_e.dates, e_e.power)
 	fig.savefig(buf, format="png")
+	plt.close(fig)
 	buf.seek(0)
 	response = HttpResponse(buf.read())
 	response["Content-Type"] = "image/png"
@@ -87,6 +88,7 @@ def importexportView(request : HttpRequest) -> HttpResponse:
 	subplots[1].plot(import_ratio.dates, import_ratio.power, label="import ratio")
 	subplots[1].legend(loc='best')
 	fig.savefig(buf, format="png")
+	plt.close(fig)
 	buf.seek(0)
 	response = HttpResponse(buf.read())
 	response["Content-Type"] = "image/png"	
