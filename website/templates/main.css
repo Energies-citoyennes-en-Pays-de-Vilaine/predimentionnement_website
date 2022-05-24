@@ -9,6 +9,11 @@
 	display: inline-block;
 	width: 300px;
 }
+.canvas{
+	display: inline-block;
+	width: 55%;
+}
+
 .singlegraphstatic{
 	position: relative;
 	width: 100%;
@@ -31,4 +36,7 @@
 	width:45%;
 	height: 100%;
 	background-color: aquamarine;
+}
+.xy{
+	width: 100%;
 }

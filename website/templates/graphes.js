@@ -1,4 +1,5 @@
 window.GRAPH_2D_STATIC = "2dimg"
+window.GRAPH_2D_DYNAMIC = "2dint"
 window.generateForm = function(docid, graphType, params, actualize){
 	slot = document.getElementById(docid)
 	controls = null
@@ -13,6 +14,12 @@ window.generateForm = function(docid, graphType, params, actualize){
 		controls.className = "singlegraphstatic controls"
 		imgdiv.appendChild(imgToPut)
 		slot.appendChild(imgdiv)
+		slot.appendChild(controls)
+	}
+	else if (graphType == GRAPH_2D_DYNAMIC)
+	{
+		controls = document.createElement("div")
+		controls.className = "singlegraphstatic controls"
 		slot.appendChild(controls)
 	}
 	for (param of params){

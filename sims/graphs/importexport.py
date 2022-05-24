@@ -24,8 +24,6 @@ def get_import_export_curves(request:HttpRequest, simParams : SimParams) -> Tupl
 	date_slice_only_after_sim = get_bool_param(request, "slice_after_sim", True) #slice only after sim
 	has_rolling_average       = get_bool_param(request, "has_ra", True) #RA is rolling_average, to eco url param size
 	rolling_average_period    = get_int_param (request, "ra_period", 24)
-	printw("begin", begin)
-	printw("end", end)
 	sim_params                       = simParams.get_clone()
 	sim_params.has_battery           = has_battery
 	sim_params.has_wind              = has_wind

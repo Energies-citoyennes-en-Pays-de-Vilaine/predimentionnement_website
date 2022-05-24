@@ -12,6 +12,8 @@ import sims.graphs.importexport as impexp
 # Create your views here.
 from sims.utils import *
 import json
+from django.views.decorators.csrf import csrf_exempt
+
 
 def prepareData(request: HttpRequest):
 	nb_eol          = get_float_param(request, "nb_eol",  float(conf.NB_EOLIENNE))
@@ -94,17 +96,17 @@ def importexportView(request : HttpRequest) -> HttpResponse:
 	response = HttpResponse(buf.read())
 	response["Content-Type"] = "image/png"	
 	return response
-
+@csrf_exempt
 def importexportAPI(request : HttpRequest) -> HttpResponse:
 	basic_sim_params : SimParams = get_ressource("basic_sim_params")
 	(importe, exporte, import_export_ratio, production_before_battery, battery_charge) = impexp.get_import_export_curves(request, basic_sim_params)
 	responseData = json.dumps({
 		"dates"                     : dateToJsonData(importe.dates),
-		"imported_energy"           : importe.power.tolist(),
-		"exported_energy"           : exporte.power.tolist(),
-		"import_ratio"              : import_export_ratio.power.tolist(),
-		"production_before_battery" : production_before_battery.power.tolist(),
-		"battery_charge"            : battery_charge.power.tolist()
+		"imported_energy"           : importe.power.tolist() if importe != None else None,
+		"exported_energy"           : exporte.power.tolist() if exporte != None else None,
+		"import_ratio"              : import_export_ratio.power.tolist() if import_export_ratio != None else None,
+		"production_before_battery" : production_before_battery.power.tolist() if production_before_battery != None else None,
+		"battery_charge"            : battery_charge.power.tolist() if battery_charge != None else None
 	})
 	response = HttpResponse(responseData)
 	response["Content-Type"] = "application/JSON"
