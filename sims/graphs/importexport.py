@@ -24,6 +24,9 @@ def get_import_export_curves(request:HttpRequest, simParams : SimParams) -> Tupl
 	date_slice_only_after_sim = get_bool_param(request, "slice_after_sim", True) #slice only after sim
 	has_rolling_average       = get_bool_param(request, "has_ra", True) #RA is rolling_average, to eco url param size
 	rolling_average_period    = get_int_param (request, "ra_period", 24)
+	has_flexibility           = get_bool_param(request, "has_flexibility", False)
+	flexibility_ratio         = get_float_param(request, "flexibility_ratio", 5) / 100.0
+
 	sim_params                       = simParams.get_clone()
 	sim_params.has_battery           = has_battery
 	sim_params.has_wind              = has_wind
@@ -36,6 +39,8 @@ def get_import_export_curves(request:HttpRequest, simParams : SimParams) -> Tupl
 	sim_params.solar_power           = solar_power * scaling_factor
 	sim_params.wind_power            = prod_per_windturbine * wind_turbine_count * scaling_factor
 	sim_params.bioenergy_power       = bioenergy_power * scaling_factor
+	sim_params.has_flexibility       = has_flexibility
+	sim_params.flexibility_ratio     = flexibility_ratio
 	if not date_slice_only_after_sim == True:
 		sim_params.begin                 = begin
 		sim_params.end                   = end

@@ -112,5 +112,7 @@ window.addEventListener("load", function(){
 		window.setDateParam("begin", "Date de départ de la simulation ", "2020-01-01"),
 		window.setDateParam("end", "Date de fin de la simulation ", "2020-02-01"),
 		window.setBoolParam("slice_after_sim", "Simuler sur toutes les données", true),
+		window.setBoolParam("has_flexibility", "Flexibilité présente ?", false),
+		window.setFloatParam("flexibility_ratio", "Fexibilité des utilisateurs (en % de leur consommation)", 5)
 	], actualize)
 })
