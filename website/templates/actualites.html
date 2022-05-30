@@ -7,10 +7,42 @@
 	<title>actualites</title>
 </head>
 <body>
+	<h2>semaine du 23 au 28 mai 2022</h2>
+	<h3>travail effectué</h3>
+	<ul>
+		<li>mise en place d'outils de simulations des imports exports sur une période donnée sur un interface web</li>
+		<li>ajout de la flexibilité dans l'outil de simulation.
+			La flexibilité est exprimée en pourcentage de la consommation totale et n'es pas limitée par période.
+			La prise en compte de la flexibilité est la suivante : On calcule la consommations totale par tranche de 24h.
+			On "trie" la différence entre la consommation et la production sur cette période.
+			On diminue la consommation de manière à applatir la différence entre la consommation et la production.
+			Pour se faire, on diminue d'abord la consommation la ou la différence est la plus grande pour la mettre au niveau de la seconde plus grande, puis on diminue les deux plus grandes mise à jour pour la mettre au niveau de la 3e, etc..
+			Et ce, tant qu'on reste dans le domaine de flexibilité (dans l'énergie alouée à la flexibilité).
+			Ensuite, on répète le même procédé dans l'autre sens, en applatissant la courbe consommation - production par le bas à partir de l'énergie qu'on a enlevé dans l'applatissement par le haut précédemment défini.
+		</li>
+		<li>tests sur la flexibilité</li>
+	</ul>
+	<h3>prévision pour la semaine suivante</h3>
+	<ul>
+		<li>simulation multi-facteurs prenant en compte la flexibilité afin de déterminer les optimaux (locale, les résultats seront à un moment disponibles sur le serveur)</li>
+		<li>reflection sur la proportion d'électricité renouvelable attribuée aux industriels afin de pouvoir réaliser une mise à l'échelle cohérente</li>
+		<li>présentation des résultats obtenus jusqu'à présent à Redon</li>
+		<li>Ajout de la consommation des industriels une fois la proportion d'électricité qui leur sera attribuée sera déterminée</li>
+		<li>Mise à jour de l'outil de simulation afin de pouvoir prendre en compte plusieurs facteurs d'énergie et les fusionner (eventuellement) en un seul coeficient de flexibilité qui prendrais en compte les deux domaines. Réflexion sur l'individualisation de la flexibilité</li>
+		<li>(probable) accélération de la simulation de flexibilité qui prend entre 70 et 80% du temps de simulation, le portant à un temps de 0.2sec/simulation sur le serveur de l'ENS, ne permettant pas de bien faire varier les 5 paramêtre identifiés:
+			<ul>
+				<li>Production solaire</li>
+				<li>Production éolienne</li>
+				<li>Production bio-énergétique (peut-être options limitables)</li>
+				<li>Capacité de stockage (peut inclure la centrale bio-énergétique au méthanol, et des batteries)</li>
+				<li>Flexibilité (constat actuel : avec la simulation actuel, au dela de 20% l'effet de la flexibilité semble limité, mais il n'y a pas encore les industriels qui sont pris en compte)</li>
+			</ul> 
+		</li>
+	</ul>
 	<h2>semaine du 16 au 20 mai 2022 : </h2>
 	<h3>travail effectué</h3>
 	<ul>
-	<li>Mise a jour de l'outil de simulation pour pouvoir prendre en compte des batteries
+	<li>Mise à jour de l'outil de simulation pour pouvoir prendre en compte des batteries
 	(ou des capacités de stockages autres de l'électricité).</li>
 	<li>Restructuration de l'outil de simulation afin de simplifier les simulations paramétriques</li>
 	<li>Déplacement des graphes paramétriques afin de les séparer du travail d'API
@@ -24,7 +56,7 @@
 	</ul>
 	<h3>prévision pour la semaine suivante</h3>
 	<ul>
-		<li>début des outils web de simultaion paramétriques</li>
+		<li>début des outils web de simulation paramétriques</li>
 		<li>création des outils webs de visualisation des courbes obtenues</li>
 		<li>formalisation de la flexibilité et mise en place des outils d'optimisation
 			afin de pouvoir prendre en compte le facteur de flexibilité et ses contraintes associées
