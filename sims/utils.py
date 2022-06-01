@@ -35,6 +35,50 @@ def get_int_param(request : HttpRequest, param_name : str, defaultValue : int) -
 		print(f"[{bcolors.WARNING}WARNING{bcolors.ENDC}] incorrect int has been provided by user in param '{param_name}' : {e}, defaulting to {defaultValue}")
 		return defaultValue
 
+def get_int_array_param(request : HttpRequest, param_name : str, defaultValue : List[int]) -> List[int]:
+	value = request.POST.get(param_name)
+	if (value == None):
+		value = request.GET.get(param_name)
+		if (value == None):
+			return defaultValue
+	try:
+		if value[0] == '[':
+			value = value.replace("[","").replace("]", "").replace("'",'').replace('"','')
+			value = [int(v) for v in value.split(",")]
+		else:
+			return [int(value)]
+		return [val for val in value]
+	except ValueError as e:
+		print(f"[{bcolors.WARNING}WARNING{bcolors.ENDC}] incorrect int or int array has been provided by user in param '{param_name}' : {e}, defaulting to {defaultValue}")
+		return defaultValue
+
+def get_float_array_param(request : HttpRequest, param_name : str, defaultValue : List[float]) -> List[float]:
+	value = request.POST.get(param_name)
+	if (value == None):
+		value = request.GET.get(param_name)
+		if (value == None):
+			return defaultValue
+	try:
+		if value[0] == '[':
+			value = value.replace("[","").replace("]", "").replace("'",'').replace('"','')
+			value = [float(v) for v in value.split(",")]
+		else:
+			return [float(value)]
+		return [val for val in value]
+	except ValueError as e:
+		print(f"[{bcolors.WARNING}WARNING{bcolors.ENDC}] incorrect float or float array has been provided by user in param '{param_name}' : {e}, defaulting to {defaultValue}")
+		return defaultValue
+
+def get_raw_param(request : HttpRequest, param_name : str, defaultValue):
+	value = request.POST.get(param_name)
+	if (value == None):
+		value = request.GET.get(param_name)
+		if (value == None):
+			return defaultValue
+	return value
+
+
+
 def get_float_param(request : HttpRequest, param_name : str, defaultValue : float) -> float:
 	value = request.POST.get(param_name)
 	if (value == None):
