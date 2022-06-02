@@ -21,7 +21,7 @@ params = {
 	"end"   : "2020-02-01"
 }
 
-function createChart(data, name, labeledKeys){
+function createChart(data, name){
 	window.plotData = []
 	z_data = []
 	for (x of Object.keys(data)){
@@ -32,19 +32,14 @@ function createChart(data, name, labeledKeys){
 		}
 		z_data.push(z_data_to_add)
 	}
-	for (let key of labeledKeys)
-	{	
-		dataApiName = key.dataApiName,
-		window.plotData.push({
-			keyName : dataApiName,
-			type : "surface",
-			name : key.label,
-			x    : Object.keys(data),
-			y    : Object.keys(data[Object.keys(data)[0]]),
-			z    : z_data
-		})
-		console.log(key,data[dataApiName])
-	}
+	dataApiName = key.dataApiName,
+	window.plotData.push({
+		keyName : dataApiName,
+		type : "surface",
+		x    : Object.keys(data),
+		y    : Object.keys(data[Object.keys(data)[0]]),
+		z    : z_data
+	})
 	layout = {
 		title:"import et export d'energie par habitant"
 	}
@@ -54,7 +49,7 @@ function createChart(data, name, labeledKeys){
 	Plotly.newPlot(name, plotData, layout, config);
 }
 
-function updateChart(data, name, labeledKeys){
+function updateChart(data, name){
 	z_data = []
 	for (x of Object.keys(data)){
 		z_data_to_add = []
@@ -64,40 +59,19 @@ function updateChart(data, name, labeledKeys){
 		}
 		z_data.push(z_data_to_add)
 	}
-	for (let key of labeledKeys)
-	{	
-		dataApiName = key.dataApiName
-		for (let i  in window.plotData){
-			if (window.plotData[i].keyName == dataApiName){
-				window.plotData[i].x = Object.keys(data)
-				window.plotData[i].y = Object.keys(data[Object.keys(data)[0]])
-				window.plotData[i].z = z_data
-			}
-		}
-	
-		console.log(key,data[dataApiName])
-	}
+	window.plotData[0].x = Object.keys(data)
+	window.plotData[0].y = Object.keys(data[Object.keys(data)[0]])
+	window.plotData[0].z = z_data
 	Plotly.redraw(name)
 }
 
 function callback(response){
 	responseData = JSON.parse(response)
-	labeledKeys = [{
-		dataApiName : "imported_energy",
-		label: "import (W/habitant)",
-		color:'rgb(75, 192, 192)',
-	},
-	{
-		dataApiName : "exported_energy",
-		label: "export (W/habitant)",
-		color:'rgb(75, 192, 192)',
-	}
-	]
 	console.log(responseData)
 	if (window.plotData == undefined)
-		createChart(responseData, "mcanvas", labeledKeys)
+		createChart(responseData, "mcanvas")
 	else
-		updateChart(responseData, "mcanvas", labeledKeys)
+		updateChart(responseData, "mcanvas")
 }
 
 sendRequest("/sims/api/results/data", params, callback )
@@ -121,6 +95,6 @@ function actualize(params){
 window.addEventListener("load", function(){
 	window.generateForm("graph", window.GRAPH_3D_DYNAMIC,
 	[
-		
+
 	], actualize)
 })
