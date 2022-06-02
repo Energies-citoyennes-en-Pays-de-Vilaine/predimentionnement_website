@@ -84,6 +84,27 @@ window.generateForm = function(docid, graphType, params, actualize){
 			div.appendChild(input)
 			controls.appendChild(div)
 		}
+		if (param.valueType == "radio"){
+			div = document.createElement("div")
+			divtext = document.createElement("span")
+			divtext.innerText = param.description
+			div.appendChild(divtext)
+			console.log(param.choices)
+			for (let choice of Object.keys(param.choices)){
+				inputWrapper = document.createElement("div")
+				input = document.createElement("input")
+				input.type = param.formType
+				input.value = param.choices[choice].index
+				input.name = param.paramName
+				input.addEventListener("change", actualize(params))
+				label = document.createElement("label")
+				label.innerText = choice
+				inputWrapper.appendChild(input)
+				inputWrapper.appendChild(label)
+				div.appendChild(inputWrapper)
+			}
+			controls.appendChild(div)
+		}
 	}
 }
 window.setIntParam = function(paramName, description, defaultValue = 5, formType = "number")
@@ -101,4 +122,8 @@ window.setBoolParam = function(paramName, description, defaultValue = true, form
 window.setDateParam = function(paramName, description, defaultValue = "2020-01-01", formType = "date")
 {
 	return {paramName, description, defaultValue, formType, valueType : "date"}
+}
+window.setEnumParam = function(paramName, description, choices, defaultValue = 0, formType = "radio")
+{
+	return {paramName, description, choices,defaultValue, formType, valueType : "radio"}
 }

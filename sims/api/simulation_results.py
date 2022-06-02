@@ -31,8 +31,11 @@ def simuation_results(request : HttpRequest) -> HttpResponse:
 	second_max   = get_float_param(request, "second_max", get_boundaries(simulated_data, second_index)[1])
 
 	indexes = [index.value for index in sim_prop_index]
-	indexes.remove(first_index)
-	indexes.remove(second_index)
+	try:
+		indexes.remove(first_index)
+		indexes.remove(second_index)
+	except ValueError:
+		printw(first_index, "i ", second_index)
 	fixed_indexes = get_int_array_param(request, "fixed_indexes", indexes)# this is needed to get the order of the fixed params
 	fixed_indexes = list(set(fixed_indexes))
 	for i in fixed_indexes:

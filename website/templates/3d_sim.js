@@ -89,19 +89,34 @@ function actualize(params){
 				values [param.paramName] = elem.checked
 				continue
 			}
+			if (param.valueType == "radio"){
+				elems = document.getElementsByName(param.paramName)
+				for (elem of elems)
+				{
+					if (elem.checked)
+					{
+						values[param.paramName] = elem.value
+						break
+					}
+				}
+				continue
+			}
 			elem = document.getElementById(param.paramName)
 			values [param.paramName] = elem.value
 		}
+		console.log(values)
 		sendRequest("/sims/api/results/data", values, callback )
 	}
 }
 
 window.addEventListener("load", function(){
 	sendRequest("/sims/api/results/index", {}, (response)=>{
-		console.log(response)
+		indexes = JSON.parse(response)
+		window.indexes = indexes
+		window.generateForm("graph", window.GRAPH_3D_DYNAMIC,
+		[
+			window.setEnumParam("first_index", "premier parametre à faire varier", indexes, defaultValue = 0, formType = "radio"),
+			window.setEnumParam("second_index", "second parametre à faire varier", indexes, defaultValue = 1, formType = "radio")
+		], actualize)
 	})
-	window.generateForm("graph", window.GRAPH_3D_DYNAMIC,
-	[
-
-	], actualize)
 })
