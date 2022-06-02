@@ -44,23 +44,23 @@ def simuation_results(request : HttpRequest) -> HttpResponse:
 	fixed_values = [get_boundaries(simulated_data, i)[0] for i in fixed_indexes]	
 	fixed_values = get_float_param(request, "fixed_values", fixed_values)
 
-	toReturnData = {
-		"first"  : [],
-		"second" : [],
-		"data"   : []
-	}
+	toReturnData = {}
 	for d in simulated_data:
-		if (d[first_index] >= first_min and d[first_index] <= first_max):
-			if (d[second_index] >= second_min and d[second_index] <= second_max):
+		first  = d[first_index]
+		second = d[second_index]
+		data   = d[return_index]
+		if (first >= first_min and first <= first_max):
+			if (second >= second_min and second <= second_max):
 				toAdd = True
 				for i in range(len(fixed_indexes)):
 					if d[fixed_indexes[i]] != fixed_values[i]:
 						toAdd = False
 				if (toAdd != True):
 					continue
-				toReturnData["first"].append(d[first_index])
-				toReturnData["second"].append(d[second_index])
-				toReturnData["data"].append(d[return_index])
+				if not first in toReturnData:
+					toReturnData[first] = {}
+				toReturnData[first][second] = data
+				
 	response = HttpResponse(json.dumps(toReturnData))
 	response["Content-Type"] = "application/JSON"
 	return response
