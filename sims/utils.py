@@ -46,8 +46,12 @@ def get_int_array_param(request : HttpRequest, param_name : str, defaultValue : 
 			value = value.replace("[","").replace("]", "").replace("'",'').replace('"','')
 			value = [int(v) for v in value.split(",")]
 		else:
-			return [int(value)]
-		return [val for val in value]
+			value = [int(value)]
+		diff_size = len(defaultValue) - len(value)
+		if (diff_size > 0):
+			for i in range(diff_size):
+				value.append(defaultValue[len(value)])
+		return value[:]
 	except ValueError as e:
 		print(f"[{bcolors.WARNING}WARNING{bcolors.ENDC}] incorrect int or int array has been provided by user in param '{param_name}' : {e}, defaulting to {defaultValue}")
 		return defaultValue
@@ -63,8 +67,12 @@ def get_float_array_param(request : HttpRequest, param_name : str, defaultValue 
 			value = value.replace("[","").replace("]", "").replace("'",'').replace('"','')
 			value = [float(v) for v in value.split(",")]
 		else:
-			return [float(value)]
-		return [val for val in value]
+			value = [float(value)]
+		diff_size = len(defaultValue) - len(value)
+		if (diff_size > 0):
+			for i in range(diff_size):
+				value.append(defaultValue[len(value)])
+		return value[:]
 	except ValueError as e:
 		print(f"[{bcolors.WARNING}WARNING{bcolors.ENDC}] incorrect float or float array has been provided by user in param '{param_name}' : {e}, defaulting to {defaultValue}")
 		return defaultValue
