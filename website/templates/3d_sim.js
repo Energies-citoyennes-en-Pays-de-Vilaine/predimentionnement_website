@@ -1,6 +1,6 @@
 window.chart = undefined
 window.plotData = undefined
-
+window.indexes = undefined
 function sendRequest(url, requestParams, callback){
 	xhr = new XMLHttpRequest()
 	xhr.open("POST", url, true)
@@ -16,30 +16,34 @@ function sendRequest(url, requestParams, callback){
 	xhr.send(params_url.join("&"))
 }
 
-params = {
-	"begin" : "2020-01-01",
-	"end"   : "2020-02-01"
-}
+
 
 function createChart(data, name){
 	window.plotData = []
 	z_data = []
+	x_data = []
+	y_data = []
 	for (x of Object.keys(data)){
 		z_data_to_add = []
+		x_data_to_add = []
+		y_data_to_add = []
 		for (y of Object.keys(data[x]))
 		{
+			x_data_to_add.push(x)
+			y_data_to_add.push(y)
 			z_data_to_add.push(data[x][y])
 		}
+		x_data.push(x_data_to_add)
+		y_data.push(y_data_to_add)
 		z_data.push(z_data_to_add)
 	}
-	dataApiName = key.dataApiName,
 	window.plotData.push({
-		keyName : dataApiName,
 		type : "surface",
-		x    : Object.keys(data),
-		y    : Object.keys(data[Object.keys(data)[0]]),
+		x    : x_data,
+		y    : y_data,
 		z    : z_data
 	})
+	console.log(window.plotData)
 	layout = {
 		title:"import et export d'energie par habitant"
 	}
@@ -74,7 +78,7 @@ function callback(response){
 		updateChart(responseData, "mcanvas")
 }
 
-sendRequest("/sims/api/results/data", params, callback )
+sendRequest("/sims/api/results/data", {}, callback )
 function actualize(params){
 	return function(){
 		values = []
@@ -88,11 +92,14 @@ function actualize(params){
 			elem = document.getElementById(param.paramName)
 			values [param.paramName] = elem.value
 		}
-		sendRequest("/sims/api/", values, callback )
+		sendRequest("/sims/api/results/data", values, callback )
 	}
 }
 
 window.addEventListener("load", function(){
+	sendRequest("/sims/api/results/index", {}, (response)=>{
+		console.log(response)
+	})
 	window.generateForm("graph", window.GRAPH_3D_DYNAMIC,
 	[
 

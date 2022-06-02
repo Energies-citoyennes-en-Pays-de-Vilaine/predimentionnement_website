@@ -60,7 +60,13 @@ def simuation_results(request : HttpRequest) -> HttpResponse:
 				if not first in toReturnData:
 					toReturnData[first] = {}
 				toReturnData[first][second] = data
-				
+	non_sorted_to_return_data = toReturnData.copy()
+	toReturnData = {}
+	for key in sorted(non_sorted_to_return_data.keys()):
+		
+		toReturnData[key] = {}
+		for ykey in sorted(non_sorted_to_return_data[key].keys()):
+			toReturnData[key][ykey] = non_sorted_to_return_data[key][ykey]
 	response = HttpResponse(json.dumps(toReturnData))
 	response["Content-Type"] = "application/JSON"
 	return response
