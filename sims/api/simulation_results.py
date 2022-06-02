@@ -14,6 +14,11 @@ def get_boundaries(data : List[List[float]], index : int) -> Tuple[float, float]
 		if d[index] > maxi:
 			maxi = d[index]
 	return (mini, maxi)
+def get_possible_values(data: List[List[float]], index : int) -> List[float]:
+	toReturn = set()
+	for d in data:
+		toReturn.add(d[index])
+	return sorted(list(toReturn))
 
 @csrf_exempt
 def simuation_results(request : HttpRequest) -> HttpResponse:
@@ -63,11 +68,26 @@ def simuation_results(request : HttpRequest) -> HttpResponse:
 @csrf_exempt
 def get_availible_data_index(request : HttpRequest) -> HttpResponse:
 	responseData = json.dumps({
-		"wind_production"      : sim_prop_index.wind       .value,
-		"solar_production"     : sim_prop_index.sun        .value,
-		"bioenergy_production" : sim_prop_index.bio        .value,
-		"battery_capacity"     : sim_prop_index.battery    .value,
-		"flexibility"          : sim_prop_index.flexibility.value
+		"wind_production"      : {
+			"index"           :  sim_prop_index.wind.value,
+			"possible_values" : get_possible_values(simulated_data, sim_prop_index.wind.value)
+		},
+		"solar_production"     : {
+			"index"           :  sim_prop_index.sun.value,
+			"possible_values" : get_possible_values(simulated_data, sim_prop_index.sun.value)
+		},
+		"bioenergy_production" : {
+			"index"           :  sim_prop_index.bio.value,
+			"possible_values" : get_possible_values(simulated_data, sim_prop_index.bio.value)
+		},
+		"battery_capacity"     : {
+			"index"           :  sim_prop_index.battery.value,
+			"possible_values" : get_possible_values(simulated_data, sim_prop_index.battery.value)
+		},
+		"flexibility"          : {
+			"index"           :  sim_prop_index.flexibility.value,
+			"possible_values" : get_possible_values(simulated_data, sim_prop_index.flexibility.value)
+		},
 	})
 	response = HttpResponse(responseData)
 	response["Content-Type"] = "application/JSON"
