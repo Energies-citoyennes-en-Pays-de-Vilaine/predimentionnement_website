@@ -41,44 +41,84 @@ function createChart(data, name){
 		type : "surface",
 		x    : x_data,
 		y    : y_data,
-		z    : z_data
+		z    : z_data,
+		z_title : "yolo"
 	})
-	console.log(window.plotData)
-	layout = {
-		title:"import et export d'energie par habitant"
+	window.layout = {
+		title:"import et export d'energie par habitant",
+		scene : {
+			xaxis:{
+				title:"Eolien (MWh/an)"
+			},
+			yaxis:{
+				title:"Solaire (MWh/an)"
+			},
+			zaxis:{
+				title: "Import(MWh/an)"
+			}
+		}
 	}
 	config = {
 		responsive: true
 	}
-	Plotly.newPlot(name, plotData, layout, config);
+	Plotly.newPlot(name, window.plotData, window.layout, config);
 }
 
-function updateChart(data, name){
+function updateChart(data, name, labels = {}){
 	z_data = []
+	x_data = []
+	y_data = []
 	for (x of Object.keys(data)){
 		z_data_to_add = []
+		x_data_to_add = []
+		y_data_to_add = []
 		for (y of Object.keys(data[x]))
 		{
+			x_data_to_add.push(x)
+			y_data_to_add.push(y)
 			z_data_to_add.push(data[x][y])
 		}
+		x_data.push(x_data_to_add)
+		y_data.push(y_data_to_add)
 		z_data.push(z_data_to_add)
 	}
-	window.plotData[0].x = Object.keys(data)
-	window.plotData[0].y = Object.keys(data[Object.keys(data)[0]])
+	window.plotData[0].x = x_data
+	window.plotData[0].y = y_data
 	window.plotData[0].z = z_data
+	if (labels.x_name != undefined)
+		window.layout.scene.xaxis.title = x_name
+	if (labels.y_name != undefined)
+		window.layout.scene.yaxis.title = y_name
 	Plotly.redraw(name)
 }
-
+function getSelectedElement(name){
+	for (elem of document.getElementsByName(name))
+		{
+			if (elem.checked == true){
+				return elem.value
+			}
+		}
+}
+function getShortName(index){
+	for (elem of Object.keys(window.indexes)){
+		if (window.indexes[elem].index == index)
+			return window.indexes[elem].short_name
+	}
+}
 function callback(response){
 	responseData = JSON.parse(response)
-	console.log(responseData)
 	if (window.plotData == undefined)
 		createChart(responseData, "mcanvas")
 	else
-		updateChart(responseData, "mcanvas")
+	{
+		first_elem = getSelectedElement("first_index")
+		second_elem = getSelectedElement("second_index")
+		x_name = getShortName(first_elem)
+		y_name = getShortName(second_elem)
+		updateChart(responseData, "mcanvas", {x_name, y_name})
+	}
 }
 
-sendRequest("/sims/api/results/data", {}, callback )
 function actualize(params){
 	return function(){
 		values = []
@@ -95,7 +135,15 @@ function actualize(params){
 				{
 					if (elem.checked)
 					{
+						val = elem.value
 						values[param.paramName] = elem.value
+						selected_elem = null
+						
+						for (choice of Object.keys(param.choices))
+						{
+							if (val == param.choices[choice].index)
+								values[param.paramName.split("_")[0] + "_scale"] = param.choices[choice].suggested_scale
+						}
 						break
 					}
 				}
@@ -104,7 +152,6 @@ function actualize(params){
 			elem = document.getElementById(param.paramName)
 			values [param.paramName] = elem.value
 		}
-		console.log(values)
 		sendRequest("/sims/api/results/data", values, callback )
 	}
 }
@@ -112,6 +159,14 @@ function actualize(params){
 window.addEventListener("load", function(){
 	sendRequest("/sims/api/results/index", {}, (response)=>{
 		indexes = JSON.parse(response)
+		default_data = {
+			first_index : indexes.wind_production.index,
+			second_index : indexes.solar_production.index,
+			 first_scale : indexes.wind_production. suggested_scale,
+			second_scale : indexes.solar_production.suggested_scale,
+			
+		}
+		sendRequest("/sims/api/results/data", default_data, callback )
 		window.indexes = indexes
 		window.generateForm("graph", window.GRAPH_3D_DYNAMIC,
 		[

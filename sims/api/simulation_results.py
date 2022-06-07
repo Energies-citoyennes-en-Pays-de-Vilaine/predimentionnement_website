@@ -2,6 +2,7 @@ from sims.utils import get_bool_param, get_float_param, get_int_param, get_date_
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from . import simulated_data, sim_prop_index, sim_result_index
+from sims.modules.predim.configuration import config
 from typing import *
 import json
 
@@ -24,12 +25,14 @@ def get_possible_values(data: List[List[float]], index : int) -> List[float]:
 def simuation_results(request : HttpRequest) -> HttpResponse:
 	first_index  = get_int_param(request, "first_index", sim_prop_index.wind.value)
 	second_index = get_int_param(request, "second_index", sim_prop_index.sun.value)
-	return_index = get_int_param(request, "return_index", sim_result_index.autosuffisiency.value)
+	return_index = get_int_param(request, "return_index", sim_result_index.export_avg.value)
 	first_min    = get_float_param(request, "first_min" , get_boundaries(simulated_data, first_index) [0])
 	first_max    = get_float_param(request, "first_max" , get_boundaries(simulated_data, first_index) [1])
 	second_min   = get_float_param(request, "second_min", get_boundaries(simulated_data, second_index)[0])
 	second_max   = get_float_param(request, "second_max", get_boundaries(simulated_data, second_index)[1])
-
+	first_scale  = get_float_param(request, "first_scale", 1.0)
+	second_scale  = get_float_param(request, "second_scale", 1.0)
+	result_scale  = get_float_param(request, "result_scale", 1.0)
 	indexes = [index.value for index in sim_prop_index]
 	try:
 		indexes.remove(first_index)
@@ -60,6 +63,9 @@ def simuation_results(request : HttpRequest) -> HttpResponse:
 						toAdd = False
 				if (toAdd != True):
 					continue
+				first *= first_scale
+				second *= second_scale
+				data *= result_scale
 				if not first in toReturnData:
 					toReturnData[first] = {}
 				toReturnData[first][second] = data
@@ -78,23 +84,38 @@ def simuation_results(request : HttpRequest) -> HttpResponse:
 def get_availible_data_index(request : HttpRequest) -> HttpResponse:
 	responseData = json.dumps({
 		"wind_production"      : {
-			"index"           :  sim_prop_index.wind.value,
+			"index"           : sim_prop_index.wind.value,
+			"name"            : "production éolienne(MWh/an)",
+			"short_name"      : "Eolien(MWh/an)",
+			"suggested_scale" : 365 * 24 * (config.CA_PONTCHATEAU_POPULATION + config.CA_REDON_POPULATION) / 1000000,
 			"possible_values" : get_possible_values(simulated_data, sim_prop_index.wind.value)
 		},
 		"solar_production"     : {
 			"index"           :  sim_prop_index.sun.value,
+			"name"            : "production photovoltaique(MWh/an)",
+			"short_name"      : "Solaire(MWh/an)",
+			"suggested_scale" : 365 * 24 * (config.CA_PONTCHATEAU_POPULATION + config.CA_REDON_POPULATION) / 1000000,
 			"possible_values" : get_possible_values(simulated_data, sim_prop_index.sun.value)
 		},
 		"bioenergy_production" : {
 			"index"           :  sim_prop_index.bio.value,
+			"name"            : "production de bioenergie(MWh/an)",
+			"short_name"      : "Bioenergie(MWh/an)",
+			"suggested_scale" : 365 * 24 * (config.CA_PONTCHATEAU_POPULATION + config.CA_REDON_POPULATION) / 1000000,
 			"possible_values" : get_possible_values(simulated_data, sim_prop_index.bio.value)
 		},
 		"battery_capacity"     : {
 			"index"           :  sim_prop_index.battery.value,
+			"name"            : "capacité de stockage (MWh)",
+			"short_name"      : "Stockage(MWh)",
+			"suggested_scale" : 1.0,
 			"possible_values" : get_possible_values(simulated_data, sim_prop_index.battery.value)
 		},
 		"flexibility"          : {
 			"index"           :  sim_prop_index.flexibility.value,
+			"name"            : "taux de flexibilité",
+			"short_name"      : "Flexibilite(ratio)",
+			"suggested_scale" : 1.0,
 			"possible_values" : get_possible_values(simulated_data, sim_prop_index.flexibility.value)
 		},
 	})

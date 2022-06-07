@@ -95,10 +95,12 @@ window.generateForm = function(docid, graphType, params, actualize){
 				input = document.createElement("input")
 				input.type = param.formType
 				input.value = param.choices[choice].index
+				if (param.choices[choice].index == param.defaultValue)
+					input.checked = true
 				input.name = param.paramName
 				input.addEventListener("change", actualize(params))
 				label = document.createElement("label")
-				label.innerText = choice
+				label.innerText = param.choices[choice].name
 				inputWrapper.appendChild(input)
 				inputWrapper.appendChild(label)
 				div.appendChild(inputWrapper)
