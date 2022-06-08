@@ -1,6 +1,7 @@
 window.chart = undefined
 window.plotData = undefined
 window.indexes = undefined
+window.results_indexes = undefined
 function sendRequest(url, requestParams, callback){
 	xhr = new XMLHttpRequest()
 	xhr.open("POST", url, true)
@@ -46,7 +47,6 @@ function createChart(data, name){
 		x    : x_data,
 		y    : y_data,
 		z    : z_data,
-		z_title : "yolo"
 	})
 	window.layout = {
 		title:"import et export d'energie par habitant",
@@ -90,9 +90,13 @@ function updateChart(data, name, labels = {}){
 	window.plotData[0].y = y_data
 	window.plotData[0].z = z_data
 	if (labels.x_name != undefined)
-		window.layout.scene.xaxis.title = x_name
+		window.layout.scene.xaxis.title = labels.x_name
 	if (labels.y_name != undefined)
-		window.layout.scene.yaxis.title = y_name
+		window.layout.scene.yaxis.title = labels.y_name
+	if (labels.z_name != undefined)
+		window.layout.scene.zaxis.title = labels.z_name
+	if (labels.title != undefined)
+		window.layout.title = labels.title
 	Plotly.redraw(name)
 }
 function getSelectedElement(name){
@@ -103,10 +107,16 @@ function getSelectedElement(name){
 			}
 		}
 }
-function getShortName(index){
-	for (elem of Object.keys(window.indexes)){
-		if (window.indexes[elem].index == index)
-			return window.indexes[elem].short_name
+function getShortName(index, indexes){
+	for (elem of Object.keys(indexes)){
+		if (indexes[elem].index == index)
+			return indexes[elem].short_name
+	}
+}
+function getName(index, indexes){
+	for (elem of Object.keys(indexes)){
+		if (indexes[elem].index == index)
+			return indexes[elem].name
 	}
 }
 function callback(response){
@@ -117,9 +127,12 @@ function callback(response){
 	{
 		first_elem = getSelectedElement("first_index")
 		second_elem = getSelectedElement("second_index")
-		x_name = getShortName(first_elem)
-		y_name = getShortName(second_elem)
-		updateChart(responseData, "mcanvas", {x_name, y_name})
+		result_elem = document.getElementById("result_index").value
+		x_name = getShortName(first_elem, window.indexes)
+		y_name = getShortName(second_elem, window.indexes)
+		z_name = getShortName(result_elem, window.results_indexes)
+		title = getName(result_elem, window.results_indexes)
+		updateChart(responseData, "mcanvas", {x_name, y_name, z_name, title})
 	}
 }
 
@@ -203,7 +216,7 @@ window.addEventListener("load", function(){
 		for (key of Object.keys(results_indexes))
 			results_indexes_as_array.push(results_indexes[key])
 		sendRequest("/sims/api/results/index", {}, (response)=>{
-			console.log({results_indexes})
+			
 			indexes = JSON.parse(response)
 			default_data = {
 				first_index : indexes.wind_production.index,
