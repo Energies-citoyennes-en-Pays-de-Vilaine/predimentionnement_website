@@ -11,8 +11,12 @@ function sendRequest(url, requestParams, callback){
 	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	params_url = []
 	for (key of Object.keys(requestParams)){
-		params_url.push(key + "=" + requestParams[key])
+		if (Array.isArray(requestParams[key]))
+			params_url.push(key + "=[" + requestParams[key] + "]")
+		else
+			params_url.push(key + "=" + requestParams[key])
 	}
+	console.log({params_url})
 	xhr.send(params_url.join("&"))
 }
 
@@ -122,6 +126,8 @@ function callback(response){
 function actualize(params){
 	return function(){
 		values = []
+		fixed_indexes = []
+		fixed_values = []
 		for (param of params){
 			if (param.valueType == "bool")
 			{
@@ -142,16 +148,45 @@ function actualize(params){
 						for (choice of Object.keys(param.choices))
 						{
 							if (val == param.choices[choice].index)
+							{
 								values[param.paramName.split("_")[0] + "_scale"] = param.choices[choice].suggested_scale
+								break
+							}
 						}
 						break
 					}
 				}
 				continue
 			}
+			if (param.formType == "select")
+			{
+				elem = document.getElementById(param.paramName)
+				if (param.paramName.startsWith("fixed_index"))
+				{
+					index = param.paramName.split("_")[param.paramName.split("_").length - 1]
+					fixed_indexes.push(index)
+					fixed_values.push(elem.value)
+				}
+				continue
+			}
 			elem = document.getElementById(param.paramName)
 			values [param.paramName] = elem.value
 		}
+		
+		first_index_pos = fixed_indexes.indexOf(values["first_index"])
+		if (first_index_pos != -1)
+		{
+			fixed_indexes.splice(first_index_pos, 1)
+			fixed_values.splice(first_index_pos, 1)
+		}
+		second_index_pos = fixed_indexes.indexOf(values["second_index"])
+		if (second_index_pos != -1)
+		{
+			fixed_indexes.splice(second_index_pos, 1)
+			fixed_values.splice(second_index_pos, 1)
+		}
+		values["fixed_indexes"] = fixed_indexes
+		values["fixed_values"]  = fixed_values
 		sendRequest("/sims/api/results/data", values, callback )
 	}
 }
@@ -168,10 +203,14 @@ window.addEventListener("load", function(){
 		}
 		sendRequest("/sims/api/results/data", default_data, callback )
 		window.indexes = indexes
+		selectParams = []
+		for (key of Object.keys(indexes))
+			selectParams.push(window.setSelectParam("fixed_index_" + indexes[key].index, indexes[key].short_name, indexes[key].possible_values, indexes[key].suggested_scale))
 		window.generateForm("graph", window.GRAPH_3D_DYNAMIC,
 		[
 			window.setEnumParam("first_index", "premier parametre à faire varier", indexes, defaultValue = 0, formType = "radio"),
-			window.setEnumParam("second_index", "second parametre à faire varier", indexes, defaultValue = 1, formType = "radio")
+			window.setEnumParam("second_index", "second parametre à faire varier", indexes, defaultValue = 1, formType = "radio"),
+			...selectParams
 		], actualize)
 	})
 })

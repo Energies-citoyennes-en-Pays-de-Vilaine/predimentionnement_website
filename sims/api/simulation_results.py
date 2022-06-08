@@ -1,4 +1,4 @@
-from sims.utils import get_bool_param, get_float_param, get_int_param, get_date_param, printw, get_raw_param, get_int_array_param
+from sims.utils import get_bool_param, get_float_param, get_int_param, get_date_param, printw, get_raw_param, get_int_array_param, get_float_array_param
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from . import simulated_data, sim_prop_index, sim_result_index
@@ -48,8 +48,7 @@ def simuation_results(request : HttpRequest) -> HttpResponse:
 			printw(f"{i} is not in the list {indexes} could not remove it")
 	fixed_indexes = fixed_indexes + indexes
 	fixed_values = [get_boundaries(simulated_data, i)[0] for i in fixed_indexes]	
-	fixed_values = get_float_param(request, "fixed_values", fixed_values)
-
+	fixed_values = get_float_array_param(request, "fixed_values", fixed_values)
 	toReturnData = {}
 	for d in simulated_data:
 		first  = d[first_index]
@@ -108,14 +107,14 @@ def get_availible_data_index(request : HttpRequest) -> HttpResponse:
 			"index"           :  sim_prop_index.battery.value,
 			"name"            : "capacité de stockage (MWh)",
 			"short_name"      : "Stockage(MWh)",
-			"suggested_scale" : 1.0,
+			"suggested_scale" : (config.CA_PONTCHATEAU_POPULATION + config.CA_REDON_POPULATION) / 1000000,
 			"possible_values" : get_possible_values(simulated_data, sim_prop_index.battery.value)
 		},
 		"flexibility"          : {
 			"index"           :  sim_prop_index.flexibility.value,
 			"name"            : "taux de flexibilité",
 			"short_name"      : "Flexibilite(ratio)",
-			"suggested_scale" : 1.0,
+			"suggested_scale" : 100,
 			"possible_values" : get_possible_values(simulated_data, sim_prop_index.flexibility.value)
 		},
 	})

@@ -84,7 +84,8 @@ window.generateForm = function(docid, graphType, params, actualize){
 			div.appendChild(input)
 			controls.appendChild(div)
 		}
-		if (param.valueType == "radio"){
+		if (param.valueType == "radio")
+		{
 			div = document.createElement("div")
 			divtext = document.createElement("span")
 			divtext.innerText = param.description
@@ -104,6 +105,25 @@ window.generateForm = function(docid, graphType, params, actualize){
 				inputWrapper.appendChild(input)
 				inputWrapper.appendChild(label)
 				div.appendChild(inputWrapper)
+			}
+			controls.appendChild(div)
+		}
+		if (param.valueType == "select")
+		{
+			div = document.createElement("div")
+			divtext = document.createElement("span")
+			divtext.innerText = param.description
+			div.appendChild(divtext)
+			select = document.createElement("select")
+			select.name = param.paramName
+			select.id = param.paramName
+			select.addEventListener("change", actualize(params))
+			div.appendChild(select)
+			for (let choice of param.choices){
+				option = document.createElement("option")
+				option.value = choice
+				option.innerText = (Math.floor(choice * param.scaling * 100))/100
+				select.appendChild(option)
 			}
 			controls.appendChild(div)
 		}
@@ -128,4 +148,8 @@ window.setDateParam = function(paramName, description, defaultValue = "2020-01-0
 window.setEnumParam = function(paramName, description, choices, defaultValue = 0, formType = "radio")
 {
 	return {paramName, description, choices,defaultValue, formType, valueType : "radio"}
+}
+window.setSelectParam = function(paramName, description, choices, scaling = 1.0, defaultValue = 0, formType = "select")
+{
+	return {paramName, description, choices,defaultValue, formType, scaling ,valueType : "select"}
 }
