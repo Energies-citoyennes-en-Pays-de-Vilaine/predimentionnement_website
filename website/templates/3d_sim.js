@@ -167,6 +167,10 @@ function actualize(params){
 					fixed_indexes.push(index)
 					fixed_values.push(elem.value)
 				}
+				else
+				{
+					values [param.paramName] = elem.value
+				}
 				continue
 			}
 			elem = document.getElementById(param.paramName)
@@ -192,25 +196,35 @@ function actualize(params){
 }
 
 window.addEventListener("load", function(){
-	sendRequest("/sims/api/results/index", {}, (response)=>{
-		indexes = JSON.parse(response)
-		default_data = {
-			first_index : indexes.wind_production.index,
-			second_index : indexes.solar_production.index,
-			 first_scale : indexes.wind_production. suggested_scale,
-			second_scale : indexes.solar_production.suggested_scale,
-			
-		}
-		sendRequest("/sims/api/results/data", default_data, callback )
-		window.indexes = indexes
-		selectParams = []
-		for (key of Object.keys(indexes))
-			selectParams.push(window.setSelectParam("fixed_index_" + indexes[key].index, indexes[key].short_name, indexes[key].possible_values, indexes[key].suggested_scale))
-		window.generateForm("graph", window.GRAPH_3D_DYNAMIC,
-		[
-			window.setEnumParam("first_index", "premier parametre à faire varier", indexes, defaultValue = 0, formType = "radio"),
-			window.setEnumParam("second_index", "second parametre à faire varier", indexes, defaultValue = 1, formType = "radio"),
-			...selectParams
-		], actualize)
+	sendRequest("/sims/api/results/index_result", {}, (response)=>{
+		results_indexes = JSON.parse(response)
+		window.results_indexes = results_indexes
+		results_indexes_as_array = []
+		for (key of Object.keys(results_indexes))
+			results_indexes_as_array.push(results_indexes[key])
+		sendRequest("/sims/api/results/index", {}, (response)=>{
+			console.log({results_indexes})
+			indexes = JSON.parse(response)
+			default_data = {
+				first_index : indexes.wind_production.index,
+				second_index : indexes.solar_production.index,
+				 first_scale : indexes.wind_production. suggested_scale,
+				second_scale : indexes.solar_production.suggested_scale,
+				
+			}
+			sendRequest("/sims/api/results/data", default_data, callback )
+			window.indexes = indexes
+			selectParams = []
+			for (key of Object.keys(indexes))
+				selectParams.push(window.setSelectParam("fixed_index_" + indexes[key].index, indexes[key].short_name, indexes[key].possible_values, indexes[key].suggested_scale))
+			window.generateForm("graph", window.GRAPH_3D_DYNAMIC,
+			[
+				window.setEnumParam("first_index", "premier parametre à faire varier", indexes, defaultValue = 0, formType = "radio"),
+				window.setEnumParam("second_index", "second parametre à faire varier", indexes, defaultValue = 1, formType = "radio"),
+				...selectParams,
+				window.setSelectParam("result_index", "résultat à afficher", results_indexes_as_array, 0.0, 7 )//TODO the one before will be changed
+			], actualize)
+		})
 	})
+	
 })

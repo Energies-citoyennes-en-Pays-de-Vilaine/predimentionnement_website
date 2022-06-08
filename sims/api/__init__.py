@@ -8,9 +8,16 @@ class sim_prop_index(Enum):
 	battery         = 3
 	flexibility     = 4
 class sim_result_index(Enum):
-	import_avg      = 5
-	export_avg      = 6
-	autosuffisiency = 7
+	storage_use     = 5
+	import_avg      = 6
+	export_avg      = 7
+	autoconso       = 8
+	import_time     = 9
+	export_time     = 10
+	low_conso_peak  = 11
+	high_conso_peak = 12
+	low_import_peak = 13
+	high_import_peak= 14
 thisPath = os.path.dirname(__file__)
 RESULTS_FILE = thisPath + "/../data/optim_results.csv"
 simulated_data = []

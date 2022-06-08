@@ -121,8 +121,14 @@ window.generateForm = function(docid, graphType, params, actualize){
 			div.appendChild(select)
 			for (let choice of param.choices){
 				option = document.createElement("option")
-				option.value = choice
-				option.innerText = (Math.floor(choice * param.scaling * 100))/100
+				if (param.paramName.startsWith("fixed_index")){
+					option.value = choice
+					option.innerText = (Math.floor(choice * param.scaling * 100))/100
+				}
+				else{
+					option.value = choice.index
+					option.innerText = choice.short_name
+				}
 				select.appendChild(option)
 			}
 			controls.appendChild(div)

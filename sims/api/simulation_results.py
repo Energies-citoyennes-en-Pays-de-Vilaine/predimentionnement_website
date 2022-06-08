@@ -25,7 +25,7 @@ def get_possible_values(data: List[List[float]], index : int) -> List[float]:
 def simuation_results(request : HttpRequest) -> HttpResponse:
 	first_index  = get_int_param(request, "first_index", sim_prop_index.wind.value)
 	second_index = get_int_param(request, "second_index", sim_prop_index.sun.value)
-	return_index = get_int_param(request, "return_index", sim_result_index.export_avg.value)
+	return_index = get_int_param(request, "result_index", sim_result_index.export_avg.value)
 	first_min    = get_float_param(request, "first_min" , get_boundaries(simulated_data, first_index) [0])
 	first_max    = get_float_param(request, "first_max" , get_boundaries(simulated_data, first_index) [1])
 	second_min   = get_float_param(request, "second_min", get_boundaries(simulated_data, second_index)[0])
@@ -117,6 +117,82 @@ def get_availible_data_index(request : HttpRequest) -> HttpResponse:
 			"suggested_scale" : 100,
 			"possible_values" : get_possible_values(simulated_data, sim_prop_index.flexibility.value)
 		},
+	})
+	response = HttpResponse(responseData)
+	response["Content-Type"] = "application/JSON"
+	return response
+
+@csrf_exempt
+def get_availible_results_index(request : HttpRequest) -> HttpResponse:
+	responseData = json.dumps({
+		"storage_use"      : {
+			"index"           : sim_result_index.storage_use.value,
+			"name"            : "utilisation du stockage (pourcent de la capacité)",
+			"short_name"      : "stockage",
+			"suggested_scale" : 100,
+		},
+		"imported_power"   : {
+			"index"           : sim_result_index.import_avg.value,
+			"name"            : "puissance importée (MWh/an)",
+			"short_name"      : "imports",
+			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e6,
+		},
+		"exported_power"   :
+		{
+			"index"           : sim_result_index.export_avg.value,
+			"name"            : "puissance exportée (MWh/an)",
+			"short_name"      :	"exports",
+			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e6,
+		},
+		"autoconso"        :
+		{
+			"index"           : sim_result_index.autoconso.value,
+			"name"            : "autoconsommation (%)",
+			"short_name"      : "autoconsommation",
+			"suggested_scale" : 100,
+		},
+		"imported_time"    :
+		{
+			"index"           : sim_result_index.import_time.value,
+			"name"            : "proportion du temps ou le territoire importe(%)",
+			"short_name"      : "taux temporel d'import",
+			"suggested_scale" : 100,
+		},
+		"exported_time"    :
+		{
+			"index"           : sim_result_index.export_time.value,
+			"name"            : "proportion du temps ou le territoire exporte(%)",
+			"short_name"      : "taux temporel d'export",
+			"suggested_scale" : 100,
+		},
+		"low_conso_peak"   :
+		{
+			"index"           : sim_result_index.low_conso_peak.value,
+			"name"            : "5%tile de consommation",
+			"short_name"      : "5% consommation",
+			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e6,
+		},
+		"high_conso_peak"  :
+		{
+			"index"           : sim_result_index.high_conso_peak.value,
+			"name"            : "95%tile de consommation",
+			"short_name"      : "95% consommation",
+			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e6,
+		},
+		"low_import_peak"  :
+		{
+			"index"           : sim_result_index.low_import_peak.value,
+			"name"            : "5%tile d'import",
+			"short_name"      : "5% import",
+			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e6,
+		},
+		"high_import_peak" :
+		{
+			"index"           : sim_result_index.high_import_peak.value,
+			"name"            : "95%tile d'import",
+			"short_name"      : "95% import",
+			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e6,
+		}
 	})
 	response = HttpResponse(responseData)
 	response["Content-Type"] = "application/JSON"
