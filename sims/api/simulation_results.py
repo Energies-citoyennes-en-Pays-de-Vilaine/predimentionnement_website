@@ -1,11 +1,21 @@
 from sims.utils import get_bool_param, get_float_param, get_int_param, get_date_param, printw, get_raw_param, get_int_array_param, get_float_array_param
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from . import simulated_data, sim_prop_index, sim_result_index
+from . import simulated_data, sim_prop_index, sim_result_index, simulated_data_np
 from sims.modules.predim.configuration import config
 from typing import *
 import json
-
+import os
+from ctypes import *
+import numpy as np
+from time import time
+libfilter = CDLL(os.path.dirname(os.path.realpath(__file__)) + "/../modules/cmodules/libfilter/libfilter.so")
+GREATER_THAN = 1
+GREATER_EQUAL = 2
+SMALLER_THAN = 3
+SMALLER_EQUAL = 4
+EQUAL = 5
+#TODO make a python module wrapper for libfilter
 def get_boundaries(data : List[List[float]], index : int) -> Tuple[float, float]:
 	mini = data[0][index]
 	maxi = data[0][index]
@@ -50,6 +60,44 @@ def simuation_results(request : HttpRequest) -> HttpResponse:
 	fixed_values = [get_boundaries(simulated_data, i)[0] for i in fixed_indexes]	
 	fixed_values = get_float_array_param(request, "fixed_values", fixed_values)
 	toReturnData = {}
+	#this is the part that will be optimized as it's too slow
+	t0 = time()
+	criterions_values = np.array([first_min, first_max, second_min, second_max] + fixed_values, dtype=np.float64)
+	criterions_types = np.array([GREATER_EQUAL, SMALLER_EQUAL, GREATER_EQUAL, SMALLER_EQUAL] + [EQUAL for i in range(len(fixed_values))], dtype=np.int64)
+	criterions_positions = np.array([first_index, first_index, second_index, second_index] + fixed_indexes, dtype=np.int64)
+	to_check = simulated_data_np
+	output_count = c_int32()
+	output_data = POINTER(c_double)()
+	t0 = time()
+	libfilter.get_filtered_data(
+		to_check.ctypes.data_as(POINTER(c_double)),
+		to_check.shape[0],
+		to_check.shape[1],
+		criterions_types.ctypes.data_as(POINTER(c_int64)),
+		criterions_values.ctypes.data_as(POINTER(c_double)),
+		criterions_positions.ctypes.data_as(POINTER(c_int64)),
+		len(criterions_types),
+		byref(output_data),
+		byref(output_count))
+	print("time00", time() - t0)
+	toReturnData2 = {}
+	result2_array = []
+	result_array  = []
+	for i in range(output_count.value):
+		first = output_data[i * to_check.shape[1] + first_index]
+		second = output_data[i * to_check.shape[1] + second_index]
+		data   = output_data[i * to_check.shape[1] + return_index]
+		first *= first_scale
+		second *= second_scale
+		data *= result_scale
+		result2_array.append([first,second,data])
+		if not first in toReturnData2:
+			toReturnData2[first] = {}
+		toReturnData2[first][second] = data
+
+	libfilter.freeArray(output_data)
+	print("time0 ",time() - t0)
+	t0 = time()
 	for d in simulated_data:
 		first  = d[first_index]
 		second = d[second_index]
@@ -65,18 +113,22 @@ def simuation_results(request : HttpRequest) -> HttpResponse:
 				first *= first_scale
 				second *= second_scale
 				data *= result_scale
+				result_array.append([first,second,data])
 				if not first in toReturnData:
 					toReturnData[first] = {}
 				toReturnData[first][second] = data
 	non_sorted_to_return_data = toReturnData.copy()
+	print("time1 ",time() - t0)
 	toReturnData = {}
 	for key in sorted(non_sorted_to_return_data.keys()):
-		
 		toReturnData[key] = {}
 		for ykey in sorted(non_sorted_to_return_data[key].keys()):
 			toReturnData[key][ykey] = non_sorted_to_return_data[key][ykey]
+			if (toReturnData2[key][ykey] != toReturnData[key][ykey]):
+				print(key,ykey, toReturnData2[key][ykey], toReturnData[key][ykey])
 	response = HttpResponse(json.dumps(toReturnData))
 	response["Content-Type"] = "application/JSON"
+
 	return response
 
 @csrf_exempt

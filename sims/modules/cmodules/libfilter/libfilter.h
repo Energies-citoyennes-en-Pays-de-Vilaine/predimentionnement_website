@@ -7,6 +7,6 @@
 
 void freeArray(void* tofree);
 
-void get_filtered_data(double* data_to_sort, int row_count, int col_count, long int* criterions_types, double* criterions_values, long* criterions_position, int criterion_count, double** sorted_data, int* sorted_count);
+void get_filtered_data(double* data_to_filter, int row_count, int col_count, long int* criterions_types, double* criterions_values, long* criterions_position, int criterion_count, double** filtered_data, int* filtered_count);
 
 int check_criterion(long criterion_type, double criterion_value, double toCheck);

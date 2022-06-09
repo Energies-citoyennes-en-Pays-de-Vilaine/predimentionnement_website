@@ -17,38 +17,28 @@ int check_criterion(long criterion_type, double criterion_value, double toCheck)
 		
 	}
 }
-void get_filtered_data(double* data_to_sort, int row_count, int col_count, long int* criterions_types, double* criterions_values, long* criterions_position, int criterion_count, double** sorted_data, int* sorted_count)
+void get_filtered_data(double* data_to_filter, int row_count, int col_count, long int* criterions_types, double* criterions_values, long* criterions_position, int criterion_count, double** filtered_data, int* filtered_count)
 {
-	size_t output_count = 0;
 	double* data_to_output = NULL;
-	for (int i = 0; i < row_count; i++)
-	{
-		//first, preallocate data that will be needed to return
-		int all_criterions_correct = 1;
-		for (int j = 0; j < criterion_count; j++){
-			all_criterions_correct = all_criterions_correct && check_criterion(criterions_types[j], criterions_values[j], data_to_sort[i * col_count + criterions_position[j]]);
-		}
-		output_count += all_criterions_correct;
-	}
-	data_to_output = malloc(output_count * sizeof(double) * col_count);
+	data_to_output = malloc(row_count * sizeof(double) * col_count);
 	int current_output_id = 0;
 	for (int i = 0; i < row_count; i++)
 	{
 		//first, preallocate data that will be needed to return
 		int all_criterions_correct = 1;
-		for (int j = 0; j < criterion_count; j++){
-			all_criterions_correct = all_criterions_correct && check_criterion(criterions_types[j], criterions_values[j], data_to_sort[i * col_count + criterions_position[j]]);
+		for (int j = 0; j < criterion_count && all_criterions_correct; j++){
+			all_criterions_correct = all_criterions_correct && check_criterion(criterions_types[j], criterions_values[j], data_to_filter[i * col_count + criterions_position[j]]);
 		}
 		if (all_criterions_correct){
 			for (int j = 0; j < col_count; j++)
 			{
-				data_to_output[current_output_id * col_count + j] = data_to_sort[i * col_count + j];
+				data_to_output[current_output_id * col_count + j] = data_to_filter[i * col_count + j];
 			}
 			current_output_id ++;
 		}
 	}
-	*sorted_data = data_to_output;
-	*sorted_count = output_count;
+	*filtered_data = data_to_output;
+	*filtered_count = current_output_id;
 }
 void freeArray(void* tofree){
 	free(tofree);

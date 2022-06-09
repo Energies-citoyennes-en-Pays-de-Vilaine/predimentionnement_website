@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-
+import numpy as np
 class sim_prop_index(Enum):
 	wind            = 0
 	sun             = 1
@@ -30,3 +30,4 @@ with open(RESULTS_FILE) as results:
 		lineElem = [float(data) for data in line.split(";")]
 		simulated_data.append(lineElem)
 
+simulated_data_np = np.array(simulated_data, np.float64)
