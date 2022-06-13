@@ -40,13 +40,14 @@ def get_index(sim_result_indexes_list : List[List[float]], values : List[float])
 
 @csrf_exempt
 def simuation_results(request : HttpRequest) -> HttpResponse:
+	t0 = time()
 	first_index  = get_int_param(request, "first_index", sim_prop_index.wind.value)
 	second_index = get_int_param(request, "second_index", sim_prop_index.sun.value)
 	return_index = get_int_param(request, "result_index", sim_result_index.export_avg.value)
-	first_min    = get_float_param(request, "first_min" , get_boundaries(simulated_data, first_index) [0])
-	first_max    = get_float_param(request, "first_max" , get_boundaries(simulated_data, first_index) [1])
-	second_min   = get_float_param(request, "second_min", get_boundaries(simulated_data, second_index)[0])
-	second_max   = get_float_param(request, "second_max", get_boundaries(simulated_data, second_index)[1])
+	first_min    = get_float_param(request, "first_min" , sim_result_indexes_list[first_index][0])
+	first_max    = get_float_param(request, "first_max" , sim_result_indexes_list[first_index][-1])
+	second_min    = get_float_param(request, "second_min" , sim_result_indexes_list[second_index][0])
+	second_max    = get_float_param(request, "second_max" , sim_result_indexes_list[second_index][-1])
 	first_scale  = get_float_param(request, "first_scale", 1.0)
 	second_scale  = get_float_param(request, "second_scale", 1.0)
 	result_scale  = get_float_param(request, "result_scale", 1.0)
@@ -63,7 +64,6 @@ def simuation_results(request : HttpRequest) -> HttpResponse:
 			indexes.remove(i)
 		except ValueError:
 			printw(f"{i} is not in the list {indexes} could not remove it")
-	t1 = time()
 	fixed_indexes = fixed_indexes + indexes
 	fixed_values = [sim_result_indexes_list[i][0] for i in fixed_indexes]
 	indexes_to_use = [0 for i in range(len(sim_result_indexes_list))]
@@ -81,11 +81,10 @@ def simuation_results(request : HttpRequest) -> HttpResponse:
 			for index in range(len(fixed_indexes)):
 				indexes_to_use[fixed_indexes[index]] = fixed_values[index]
 			toReturnData[first * first_scale][second * second_scale] = sorted_simulated_data[get_index(sim_result_indexes_list, indexes_to_use)][return_index] * result_scale
-	print(time() - t1)
 	
 	response = HttpResponse(json.dumps(toReturnData))
 	response["Content-Type"] = "application/JSON"
-
+	print(time() - t0)
 	return response
 
 @csrf_exempt
