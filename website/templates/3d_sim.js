@@ -183,6 +183,16 @@ function actualize(params){
 				else
 				{
 					values [param.paramName] = elem.value
+					if (param.paramName == "result_index")
+					{
+						for (choice of param.choices)
+						{
+							if (choice.index == elem.value)
+							{
+								values["result_scale"] = choice.suggested_scale
+							}
+						}
+					}
 				}
 				continue
 			}

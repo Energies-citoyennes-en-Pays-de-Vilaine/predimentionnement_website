@@ -1,6 +1,9 @@
 import os
 from enum import Enum
 import numpy as np
+from time import time
+from typing import *
+INDEX_COUNT = 5
 class sim_prop_index(Enum):
 	wind            = 0
 	sun             = 1
@@ -21,6 +24,8 @@ class sim_result_index(Enum):
 thisPath = os.path.dirname(__file__)
 RESULTS_FILE = thisPath + "/../data/optim_results.csv"
 simulated_data = []
+print("loading sim results data")
+t0 = time()
 with open(RESULTS_FILE) as results:
 	first_line = True
 	for line in results:
@@ -29,5 +34,28 @@ with open(RESULTS_FILE) as results:
 			continue
 		lineElem = [float(data) for data in line.split(";")]
 		simulated_data.append(lineElem)
-
+print(f"took {time() - t0}s")
+t0 = time()
+print("re-ordering data for to quicken the sim result API")
+sim_result_indexes_list = [[simulated_data[0][i]] for i in range(INDEX_COUNT)]
+for line in simulated_data:
+	for i in range(INDEX_COUNT):
+		if (line[i] not in sim_result_indexes_list[i]):
+			sim_result_indexes_list[i].append(line[i])
+			sim_result_indexes_list[i] = sorted(sim_result_indexes_list[i])
+def get_indexing_function(indexes_list):
+	def indexing_function(to_index : List[float]) -> float:
+		result: float = 0.0
+		for i in range(len(indexes_list)):
+			offset = 0
+			to_mult_by =  indexes_list[i][-1] + 1
+			if (indexes_list[i][0] < 0.0):
+				offset = -indexes_list[i][-1]
+			to_mult_by += offset
+			result *= to_mult_by
+			result += offset + to_index[i]
+		return result
+	return indexing_function
+sorted_simulated_data = sorted(simulated_data, key=get_indexing_function(sim_result_indexes_list))
+print(f"took {time() - t0}s ")
 simulated_data_np = np.array(simulated_data, np.float64)
