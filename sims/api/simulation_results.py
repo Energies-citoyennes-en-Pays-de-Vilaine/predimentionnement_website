@@ -66,6 +66,7 @@ def simuation_results(request : HttpRequest) -> HttpResponse:
 			printw(f"{i} is not in the list {indexes} could not remove it")
 	fixed_indexes = fixed_indexes + indexes
 	fixed_values = [sim_result_indexes_list[i][0] for i in fixed_indexes]
+	fixed_values = get_float_array_param(request, "fixed_values", fixed_values)
 	indexes_to_use = [0 for i in range(len(sim_result_indexes_list))]
 	toReturnData = {}
 	toReturnData = {}
