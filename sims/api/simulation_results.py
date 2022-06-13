@@ -69,10 +69,13 @@ def simuation_results(request : HttpRequest) -> HttpResponse:
 	indexes_to_use = [0 for i in range(len(sim_result_indexes_list))]
 	toReturnData = {}
 	toReturnData = {}
-	result_array = []
 	for first in sim_result_indexes_list[first_index]:
+		if (first >= first_min and first <= first_max):
+			continue
 		toReturnData[first * first_scale] = {}
 		for second in sim_result_indexes_list[second_index]:
+			if (second >= second_min and second <= second_max):
+				continue
 			indexes_to_use[first_index] = first
 			indexes_to_use[second_index] = second
 			for index in range(len(fixed_indexes)):
