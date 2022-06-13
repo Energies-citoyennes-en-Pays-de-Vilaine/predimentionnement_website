@@ -141,14 +141,14 @@ def get_availible_results_index(request : HttpRequest) -> HttpResponse:
 		},
 		"imported_power"   : {
 			"index"           : sim_result_index.import_avg.value,
-			"name"            : "puissance importée (MWh/an)",
+			"name"            : "puissance importée (GWh/an)",
 			"short_name"      : "imports",
 			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e9,
 		},
 		"exported_power"   :
 		{
 			"index"           : sim_result_index.export_avg.value,
-			"name"            : "puissance exportée (MWh/an)",
+			"name"            : "puissance exportée (GWh/an)",
 			"short_name"      :	"exports",
 			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e9,
 		},
@@ -177,27 +177,27 @@ def get_availible_results_index(request : HttpRequest) -> HttpResponse:
 		{
 			"index"           : sim_result_index.low_conso_peak.value,
 			"name"            : "5%tile de consommation",
-			"short_name"      : "5% consommation",
+			"short_name"      : "5% consommation (GWh/an)",
 			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e9,
 		},
 		"high_conso_peak"  :
 		{
 			"index"           : sim_result_index.high_conso_peak.value,
 			"name"            : "95%tile de consommation",
-			"short_name"      : "95% consommation",
+			"short_name"      : "95% consommation (GWh/an)",
 			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e9,
 		},
 		"low_import_peak"  :
 		{
 			"index"           : sim_result_index.low_import_peak.value,
-			"name"            : "5%tile d'import",
+			"name"            : "5%tile d'import (GWh/an)",
 			"short_name"      : "5% import",
 			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e9,
 		},
 		"high_import_peak" :
 		{
 			"index"           : sim_result_index.high_import_peak.value,
-			"name"            : "95%tile d'import",
+			"name"            : "95%tile d'import (GWh/an)",
 			"short_name"      : "95% import",
 			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e9,
 		}
