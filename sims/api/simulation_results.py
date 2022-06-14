@@ -1,7 +1,7 @@
 from sims.utils import get_bool_param, get_float_param, get_int_param, get_date_param, printw, get_raw_param, get_int_array_param, get_float_array_param
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from . import simulated_data, sim_prop_index, sim_result_index, sorted_simulated_data, sim_result_indexes_list
+from . import sim_prop_index, sim_result_index, sorted_simulated_data, sim_result_indexes_list
 from sims.modules.predim.configuration import config
 from typing import *
 import json

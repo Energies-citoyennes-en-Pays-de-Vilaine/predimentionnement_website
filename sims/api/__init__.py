@@ -56,6 +56,6 @@ def get_indexing_function(indexes_list):
 			result += offset + to_index[i]
 		return result
 	return indexing_function
-sorted_simulated_data = sorted(simulated_data, key=get_indexing_function(sim_result_indexes_list))
+sorted_simulated_data = np.array(sorted(simulated_data, key=get_indexing_function(sim_result_indexes_list)))
+del simulated_data
 print(f"took {time() - t0}s ")
-simulated_data_np = np.array(simulated_data, np.float64)

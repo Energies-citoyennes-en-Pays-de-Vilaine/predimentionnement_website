@@ -11,7 +11,7 @@
 }
 .canvas{
 	display: inline-block;
-	width: 55%;
+	width: 65%;
 }
 
 .singlegraphstatic{
@@ -22,7 +22,7 @@
 .img.singlegraphstatic{
 	display: inline-block;
 
-	width: 55%;
+	width: 65%;
 	height: 100%;
 }
 .img.singlegraphstatic>img{
@@ -33,7 +33,7 @@
 	display: inline-block;
 	right: 0;
 	top: 0;
-	width:45%;
+	width:35%;
 	height: 100%;
 	background-color: aquamarine;
 }
