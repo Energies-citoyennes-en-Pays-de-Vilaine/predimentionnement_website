@@ -88,6 +88,78 @@ def simuation_results(request : HttpRequest) -> HttpResponse:
 	print(time() - t0)
 	return response
 
+
+def get_variations(arrayToRetrun, current_choices, arrayOfChoices):
+	if len(arrayOfChoices) == 0:
+			arrayToRetrun.append(current_choices[:])
+			return
+	else:
+		for choice in arrayOfChoices[0]:
+			get_variations(arrayToRetrun, current_choices[:] + [choice], arrayOfChoices[1:])
+	return arrayToRetrun
+
+@csrf_exempt
+def simuation_result_varying(request : HttpRequest) -> HttpResponse:
+	t0 = time()
+	varyin_indexes  = get_int_array_param(request, "varying_indexes",  [sim_prop_index.wind.value])
+	varying_mins    = get_float_array_param(request, "varying_mins" , [sim_result_indexes_list[i][0] for i in varyin_indexes])
+	varying_maxs    = get_float_array_param(request, "varying_maxs" , [sim_result_indexes_list[i][-1] for i in varyin_indexes])
+	varying_scales  = get_float_array_param(request, "varying_scales", [1.0] * len(varyin_indexes))
+	return_index    = get_int_param(request, "result_index", sim_result_index.export_avg.value)
+	result_scale    = get_float_param(request, "result_scale", 1.0)
+
+	indexes = [index.value for index in sim_prop_index]
+	try:
+		for i in varyin_indexes:
+			indexes.remove(i)
+	except ValueError:
+		printw("indexes used multiple times", indexes)
+	fixed_indexes = get_int_array_param(request, "fixed_indexes", indexes)# this is needed to get the order of the fixed params
+	fixed_indexes = list(set(fixed_indexes))
+	for i in fixed_indexes:
+		try:
+			indexes.remove(i)
+		except ValueError:
+			printw(f"{i} is not in the list {indexes} could not remove it")
+	fixed_indexes = fixed_indexes + indexes
+	fixed_values = [sim_result_indexes_list[i][0] for i in fixed_indexes]
+	fixed_values = get_float_array_param(request, "fixed_values", fixed_values)
+	indexes_to_use = [0 for i in range(len(sim_result_indexes_list))]
+	toReturnData = {}
+	toReturnData = {}
+	permutations_to_check = []
+	for i in varyin_indexes:
+		permutations_to_check.append(sim_result_indexes_list[i])
+	variations = []
+	variations = get_variations(variations, [], permutations_to_check)
+	result = {}
+	current_result = result#TODO rename those
+	last_result = current_result
+	for variation in variations:
+		is_valid_variation = True
+		for i in range(len(variation)):
+			if (variation[i] < varying_mins[i] or variation[i] > varying_maxs[i]):
+				is_valid_variation = False
+				break
+			indexes_to_use[varyin_indexes[i]] = variation[i]
+		if not is_valid_variation:
+			continue
+		for index in range(len(fixed_indexes)):
+			indexes_to_use[fixed_indexes[index]] = fixed_values[index]
+		current_result = result
+		for i in range(len(variation)):
+			try:
+				current_result[variation[i] * varying_scales[i]]
+			except KeyError:
+				current_result[variation[i] * varying_scales[i]] = {}
+			last_result = current_result
+			current_result = current_result[variation[i] * varying_scales[i]]
+		last_result[variation[i] * varying_scales[i]] = sorted_simulated_data[get_index(sim_result_indexes_list, indexes_to_use)][return_index] * result_scale
+	response = HttpResponse(json.dumps(result))
+	response["Content-Type"] = "application/JSON"
+	return response
+
+
 @csrf_exempt
 def get_availible_data_index(request : HttpRequest) -> HttpResponse:
 	responseData = json.dumps({
@@ -201,6 +273,13 @@ def get_availible_results_index(request : HttpRequest) -> HttpResponse:
 			"name"            : "95%tile d'import (GWh/an)",
 			"short_name"      : "95% import",
 			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e9,
+		},
+		"flexibility_use" :
+		{
+			"index"           : sim_result_index.felxibility_use.value,
+			"name"            : "utilisation de la flexibilité (%)",
+			"short_name"      : "flex moyenne",
+			"suggested_scale" : 100,
 		}
 	})
 	response = HttpResponse(responseData)

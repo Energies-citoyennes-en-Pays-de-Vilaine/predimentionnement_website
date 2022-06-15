@@ -21,8 +21,9 @@ class sim_result_index(Enum):
 	high_conso_peak = 12
 	low_import_peak = 13
 	high_import_peak= 14
+	felxibility_use = 15
 thisPath = os.path.dirname(__file__)
-RESULTS_FILE = thisPath + "/../data/optim_results.csv"
+RESULTS_FILE = thisPath + "/../data/result.csv"
 simulated_data = []
 print("loading sim results data")
 t0 = time()
