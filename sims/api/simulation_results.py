@@ -106,7 +106,7 @@ def simuation_result_varying(request : HttpRequest) -> HttpResponse:
 	varying_max      = get_float_param(request, "varying_max",  -1.0)
 	varying_indexes  = get_int_array_param(request, "varying_indexes",  [varying_index])
 	varying_scale   = get_float_param(request, "varying_scale", -1.0)
-	
+
 	default_varying_min = [sim_result_indexes_list[i][0] for i in varying_indexes]
 	if (varying_min != -1.0):
 		default_varying_min = [varying_min]
@@ -289,11 +289,25 @@ def get_availible_results_index(request : HttpRequest) -> HttpResponse:
 		},
 		"flexibility_use" :
 		{
-			"index"           : sim_result_index.felxibility_use.value,
+			"index"           : sim_result_index.flexibility_use.value,
 			"name"            : "utilisation de la flexibilité (%)",
 			"short_name"      : "flex moyenne",
 			"suggested_scale" : 100,
-		}
+		},
+		"export_max" :
+		{
+			"index"           : sim_result_index.export_max.value,
+			"name"            : "valeur maximale d'export(GWh/an)",
+			"short_name"      : "export max",
+			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e9,
+		},
+		"import_max" :
+		{
+			"index"           : sim_result_index.import_max.value,
+			"name"            : "valeur maximale d'import(GWh/an)",
+			"short_name"      : "import max",
+			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e9,
+		},
 	})
 	response = HttpResponse(responseData)
 	response["Content-Type"] = "application/JSON"
