@@ -101,16 +101,30 @@ def get_variations(arrayToRetrun, current_choices, arrayOfChoices):
 @csrf_exempt
 def simuation_result_varying(request : HttpRequest) -> HttpResponse:
 	t0 = time()
-	varyin_indexes  = get_int_array_param(request, "varying_indexes",  [sim_prop_index.wind.value])
-	varying_mins    = get_float_array_param(request, "varying_mins" , [sim_result_indexes_list[i][0] for i in varyin_indexes])
-	varying_maxs    = get_float_array_param(request, "varying_maxs" , [sim_result_indexes_list[i][-1] for i in varyin_indexes])
-	varying_scales  = get_float_array_param(request, "varying_scales", [1.0] * len(varyin_indexes))
+	varying_index    = get_int_param(request, "varying_index",  sim_prop_index.wind.value)
+	varying_min      = get_float_param(request, "varying_min", -1.0)
+	varying_max      = get_float_param(request, "varying_max",  -1.0)
+	varying_indexes  = get_int_array_param(request, "varying_indexes",  [varying_index])
+	varying_scale   = get_float_param(request, "varying_scale", -1.0)
+	
+	default_varying_min = [sim_result_indexes_list[i][0] for i in varying_indexes]
+	if (varying_min != -1.0):
+		default_varying_min = [varying_min]
+	varying_mins    = get_float_array_param(request, "varying_mins" , default_varying_min)
+	default_varying_max = [sim_result_indexes_list[i][-1] for i in varying_indexes]
+	if (varying_max != -1.0):
+		default_varying_max = [varying_max]
+	varying_maxs    = get_float_array_param(request, "varying_maxs" , default_varying_max)
+	default_varying_scale = [1.0] * len(varying_indexes)
+	if (varying_scale != -1.0):
+		default_varying_scale = [varying_scale]
+	varying_scales  = get_float_array_param(request, "varying_scales", default_varying_scale)
 	return_index    = get_int_param(request, "result_index", sim_result_index.export_avg.value)
 	result_scale    = get_float_param(request, "result_scale", 1.0)
 
 	indexes = [index.value for index in sim_prop_index]
 	try:
-		for i in varyin_indexes:
+		for i in varying_indexes:
 			indexes.remove(i)
 	except ValueError:
 		printw("indexes used multiple times", indexes)
@@ -126,9 +140,8 @@ def simuation_result_varying(request : HttpRequest) -> HttpResponse:
 	fixed_values = get_float_array_param(request, "fixed_values", fixed_values)
 	indexes_to_use = [0 for i in range(len(sim_result_indexes_list))]
 	toReturnData = {}
-	toReturnData = {}
 	permutations_to_check = []
-	for i in varyin_indexes:
+	for i in varying_indexes:
 		permutations_to_check.append(sim_result_indexes_list[i])
 	variations = []
 	variations = get_variations(variations, [], permutations_to_check)
@@ -141,7 +154,7 @@ def simuation_result_varying(request : HttpRequest) -> HttpResponse:
 			if (variation[i] < varying_mins[i] or variation[i] > varying_maxs[i]):
 				is_valid_variation = False
 				break
-			indexes_to_use[varyin_indexes[i]] = variation[i]
+			indexes_to_use[varying_indexes[i]] = variation[i]
 		if not is_valid_variation:
 			continue
 		for index in range(len(fixed_indexes)):
