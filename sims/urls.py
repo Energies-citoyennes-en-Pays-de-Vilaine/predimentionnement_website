@@ -11,5 +11,6 @@ urlpatterns = [
 	path("api/results/index_result", get_availible_results_index),
 	path("api/results/data", simuation_results),
 	path("api/results/vdata", simuation_result_varying),
+	path("api/results/agglomerated_result", views.get_agglomerated_results),
 
 ]

@@ -1,3 +1,4 @@
+CACHE_SIZE = 100
 from django.shortcuts import render
 from django.http import HttpRequest,HttpResponse
 import matplotlib as mpl
@@ -14,6 +15,29 @@ from sims.utils import *
 import json
 from django.views.decorators.csrf import csrf_exempt
 
+cached_agglo_sim_results = {}
+
+def add_to_cached(key : str, values : SimModule.AgglomeratedSimResults):
+	if (key not in cached_agglo_sim_results.keys()):
+		cached_agglo_sim_results[key] = {
+			"time_used" : 0,
+			"data"      : values
+		}
+	else:
+		cached_agglo_sim_results[key]["time_used"] += 1
+	while (len(cached_agglo_sim_results.keys()) > CACHE_SIZE):
+		sorted_keys = sorted(cached_agglo_sim_results.keys(), lambda x : cached_agglo_sim_results[x]["time_used"])
+		if key == sorted_keys[0]:
+			del cached_agglo_sim_results[sorted_keys[1]]
+		else:
+			del cached_agglo_sim_results[sorted_keys[0]]
+
+def get_from_cache(key : str) -> SimModule.AgglomeratedSimResults:
+	if (key not in cached_agglo_sim_results.keys()):
+		return False
+	else:
+		cached_agglo_sim_results[key]["time_used"] += 1
+		return cached_agglo_sim_results[key]["data"]
 
 def prepareData(request: HttpRequest):
 	nb_eol          = get_float_param(request, "nb_eol",  float(conf.NB_EOLIENNE))
@@ -80,15 +104,18 @@ def ie(request : HttpRequest) -> HttpResponse:
 	response["Content-Type"] = "image/png"
 	return response
 
+
+
 def importexportView(request : HttpRequest) -> HttpResponse:
 	basic_sim_params = get_ressource("basic_sim_params")
-	(importe, exporte, import_ratio) = impexp.get_import_export_curves(request=request, simParams=basic_sim_params)[:3]
+	(importe, exporte, import_export_ratio, production_before_battery, battery_charge, results, param_string) = impexp.get_import_export_curves(request=request, simParams=basic_sim_params)
+	add_to_cached(param_string, SimModule.AgglomeratedSimResults.from_sim_results(results))	
 	buf = io.BytesIO()
 	fig, subplots = plt.subplots(2,1)
 	subplots[0].plot(importe.dates, importe.power,'r', label="imported power")
 	subplots[0].plot(exporte.dates, exporte.power, 'c', label="exported power")
 	subplots[0].legend(loc='best')
-	subplots[1].plot(import_ratio.dates, import_ratio.power, label="import ratio")
+	subplots[1].plot(import_export_ratio.dates, import_export_ratio.power, label="import ratio")
 	subplots[1].legend(loc='best')
 	fig.savefig(buf, format="png")
 	plt.close(fig)
@@ -99,7 +126,8 @@ def importexportView(request : HttpRequest) -> HttpResponse:
 @csrf_exempt
 def importexportAPI(request : HttpRequest) -> HttpResponse:
 	basic_sim_params : SimParams = get_ressource("basic_sim_params")
-	(importe, exporte, import_export_ratio, production_before_battery, battery_charge) = impexp.get_import_export_curves(request, basic_sim_params)
+	(importe, exporte, import_export_ratio, production_before_battery, battery_charge, results, param_string) = impexp.get_import_export_curves(request, basic_sim_params)
+	add_to_cached(param_string, SimModule.AgglomeratedSimResults.from_sim_results(results))	
 	responseData = json.dumps({
 		"dates"                     : dateToJsonData(importe.dates),
 		"imported_energy"           : importe.power.tolist() if importe != None else None,
@@ -111,3 +139,36 @@ def importexportAPI(request : HttpRequest) -> HttpResponse:
 	response = HttpResponse(responseData)
 	response["Content-Type"] = "application/JSON"
 	return response
+@csrf_exempt
+def get_agglomerated_results(request : HttpRequest) -> HttpResponse:
+	key = impexp.get_params_as_string(request)
+	response_data : SimModule.AgglomeratedSimResults = get_from_cache(key)
+	if (response_data == False):
+		printw("cache miss : ", key)
+		basic_sim_params : SimParams = get_ressource("basic_sim_params")
+		(importe, exporte, import_export_ratio, production_before_battery, battery_charge, results, param_string) = impexp.get_import_export_curves(request, basic_sim_params)
+		response_data = SimModule.AgglomeratedSimResults.from_sim_results(results)
+		add_to_cached(param_string, response_data)
+	response_json = {
+		"energie importee (GWh)"                   : response_data.imported_power   * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) * 365 * 24/ 1e9,
+		"energie exportee (GWh)"                   : response_data.exported_power   * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) * 365 * 24/ 1e9,
+		"puissance max d'import (MW)"              : response_data.import_max       * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) / 1e6,
+		"puissance max d'export (MW)"              : response_data.export_max       * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) / 1e6,
+		"taux horraire d'import (%)"               : response_data.imported_time    * 100,
+		"taux horraire d'export (%)"               : response_data.exported_time    * 100,
+		"5%tile de consommation (MW)"              : response_data.low_conso_peak   * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) / 1e6,
+		"95%tile de consommation (MW)"             : response_data.high_conso_peak  * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) / 1e6,
+		"5%tile d'import (MW)"                     : response_data.low_import_peak  * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) / 1e6,
+		"95%tile d'import (MW)"                    : response_data.high_import_peak * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) / 1e6,
+		"taux d'utilisation du stockage (%)"       : response_data.storage_use      * 100,
+		"taux d'utilisation de la flexibilite (%)" : response_data.flexibility_use  * 100,
+		"taux de couverture global (%)"            : response_data.coverage         * 100,
+		"moyenne du taux couverture horraire (%)"  : response_data.coverage_avg     * 100,
+		"taux d'autoconsommation (%)"              : response_data.autoconso        * 100,
+		"taux d'autoproduction (%)"                : response_data.autoprod         * 100,
+	}
+	response = HttpResponse(json.dumps(response_json))
+	response["Content-type"] = "application/json"
+	return response
+	#response still to write
+

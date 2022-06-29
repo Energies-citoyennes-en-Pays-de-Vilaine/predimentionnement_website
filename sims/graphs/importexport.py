@@ -5,9 +5,7 @@ from sims.utils import get_bool_param, get_float_param, get_int_param, get_date_
 from django.http import HttpRequest,HttpResponse
 from ..modules.predim.configuration import config
 
-def get_import_export_curves(request:HttpRequest, simParams : SimParams) -> Tuple[PowerData, PowerData, PowerData, PowerData, PowerData]:
-	#import, export, needed import ratio
-	#get config for this problem
+def get_params(request : HttpRequest) -> Tuple:
 	prod_per_windturbine      = get_float_param(request, "wind_tubine_prod", config.PROD_PER_WINDTURBINE)
 	has_wind                  = get_bool_param (request, "has_wind", True)
 	has_solar                 = get_bool_param (request, "has_solar", config.ADD_SOLAR)
@@ -26,7 +24,57 @@ def get_import_export_curves(request:HttpRequest, simParams : SimParams) -> Tupl
 	rolling_average_period    = get_int_param (request, "ra_period", 24)
 	has_flexibility           = get_bool_param(request, "has_flexibility", False)
 	flexibility_ratio         = get_float_param(request, "flexibility_ratio", 5) / 100.0
+	return (
+		prod_per_windturbine     , 
+		has_wind                 , 
+		has_solar                , 
+		has_bioenergy            , 
+		wind_turbine_count       , 
+		solar_power              , 
+		bioenergy_power          , 
+		total_pop                , 
+		has_battery              , 
+		battery_capacity         , 
+		scaling_factor           , 
+		begin                    , 
+		end                      , 
+		date_slice_only_after_sim, 
+		has_rolling_average      , 
+		rolling_average_period   , 
+		has_flexibility          , 
+		flexibility_ratio         
+	)
 
+def get_params_as_string(request : HttpRequest) -> str:
+	params = get_params(request)
+	toRet = [str(param) for param in params]
+	return ";".join(toRet)
+
+
+def get_import_export_curves(request:HttpRequest, simParams : SimParams) -> Tuple[PowerData, PowerData, PowerData, PowerData, PowerData]:
+	#import, export, needed import ratio
+	#get config for this problem
+	(	
+		prod_per_windturbine      , 
+		has_wind                  , 
+		has_solar                 , 
+		has_bioenergy             , 
+		wind_turbine_count        , 
+		solar_power               , 
+		bioenergy_power           , 
+		total_pop                 , 
+		has_battery               , 
+		battery_capacity          , 
+		scaling_factor            , 
+		begin                     , 
+		end                       , 
+		date_slice_only_after_sim , 
+		has_rolling_average       , 
+		rolling_average_period    , 
+		has_flexibility           , 
+		flexibility_ratio
+	) = get_params(request) 
+	
 	sim_params                       = simParams.get_clone()
 	sim_params.has_battery           = has_battery
 	sim_params.has_wind              = has_wind
@@ -46,10 +94,12 @@ def get_import_export_curves(request:HttpRequest, simParams : SimParams) -> Tupl
 		sim_params.end                   = end
 	sim_params.check_and_convert_params()
 	results : SimResults = simulate_senario(sim_params)
+	
 	if date_slice_only_after_sim == True:
 		results = results.get_slice_over_period(begin, end)
+	results_ra = results
 	if has_rolling_average == True:
-		results = results.get_rolling_average(rolling_average_period)
-	return (results.imported_power, results.exported_power, results.imported_power / results.total_consumption, results.production_before_batteries, results.battery)
+		results_ra = results.get_rolling_average(rolling_average_period)
+	return (results_ra.imported_power, results_ra.exported_power, results_ra.imported_power / results_ra.total_consumption, results_ra.production_before_batteries, results_ra.battery, results, get_params_as_string(request))
 
 
