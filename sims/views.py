@@ -155,7 +155,7 @@ def get_agglomerated_results(request : HttpRequest) -> HttpResponse:
 		response_data = cached_result[0]
 		consumption   = cached_result[1]
 	response_json = {
-		"Conso sur la période concernée (GWh)"     : consumption                    * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) / 1e9,
+		"Conso sur la période concernée (kWh)"     : consumption                    / 1e3,
 		"energie importee (GWh)"                   : response_data.imported_power   * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) * 365 * 24/ 1e9,
 		"energie exportee (GWh)"                   : response_data.exported_power   * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) * 365 * 24/ 1e9,
 		"puissance max d'import (MW)"              : response_data.import_max       * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) / 1e6,

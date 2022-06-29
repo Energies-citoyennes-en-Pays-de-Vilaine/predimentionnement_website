@@ -26,14 +26,13 @@
 					dataviewer = document.getElementById("resultslot")
 					let xhr = new XMLHttpRequest()
 					xhr.onload = () => {
-						console.log({response : xhr.response})
 						dataviewer.innerHTML = ""
 						responseJSON = JSON.parse(xhr.response)
 						for (element of Object.keys(responseJSON))
 						{
 							div = document.createElement("div")
-							div.innerText = element + " : " + responseJSON[element]	
-							div.style = "padding-right:10px; display: inline-block;"
+							div.innerText = element + " : " + responseJSON[element].toFixed(2)	
+							div.style = "padding-right:10px; display: block;"
 							console.log(element)
 							dataviewer.appendChild(div)
 						}

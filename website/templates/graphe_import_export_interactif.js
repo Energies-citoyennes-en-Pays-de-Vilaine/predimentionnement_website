@@ -76,7 +76,7 @@ function callback(params){
 			color:'rgb(75, 192, 192)',
 		}
 		]
-		console.log(responseData)
+		console.log({responseData})
 		if (window.plotData == undefined)
 			createChart(responseData, "mcanvas", labeledKeys)
 		else
@@ -88,9 +88,8 @@ function callback(params){
 			for (element of Object.keys(responseJSON))
 			{
 				div = document.createElement("div")
-				div.innerText = element + " : " + responseJSON[element]	
-				div.style = "padding-right:10px; display: inline-block;"
-				console.log(element)
+				div.innerText = element + " : " + responseJSON[element].toFixed(2)	
+				div.style = "padding-right:10px; display: block;"
 				dataviewer.appendChild(div)
 			}
 		})
