@@ -74,7 +74,6 @@ def get_import_export_curves(request:HttpRequest, simParams : SimParams) -> Tupl
 		has_flexibility           , 
 		flexibility_ratio
 	) = get_params(request) 
-	
 	sim_params                       = simParams.get_clone()
 	sim_params.has_battery           = has_battery
 	sim_params.has_wind              = has_wind

@@ -17,11 +17,12 @@ from django.views.decorators.csrf import csrf_exempt
 
 cached_agglo_sim_results = {}
 
-def add_to_cached(key : str, values : SimModule.AgglomeratedSimResults):
+def add_to_cached(key : str, values : SimModule.AgglomeratedSimResults, consumption : float):
 	if (key not in cached_agglo_sim_results.keys()):
 		cached_agglo_sim_results[key] = {
-			"time_used" : 0,
-			"data"      : values
+			"time_used"   : 0,
+			"data"        : values,
+			"consumption" : consumption,
 		}
 	else:
 		cached_agglo_sim_results[key]["time_used"] += 1
@@ -37,7 +38,7 @@ def get_from_cache(key : str) -> SimModule.AgglomeratedSimResults:
 		return False
 	else:
 		cached_agglo_sim_results[key]["time_used"] += 1
-		return cached_agglo_sim_results[key]["data"]
+		return (cached_agglo_sim_results[key]["data"], cached_agglo_sim_results[key]["consumption"])
 
 def prepareData(request: HttpRequest):
 	nb_eol          = get_float_param(request, "nb_eol",  float(conf.NB_EOLIENNE))
@@ -109,7 +110,7 @@ def ie(request : HttpRequest) -> HttpResponse:
 def importexportView(request : HttpRequest) -> HttpResponse:
 	basic_sim_params = get_ressource("basic_sim_params")
 	(importe, exporte, import_export_ratio, production_before_battery, battery_charge, results, param_string) = impexp.get_import_export_curves(request=request, simParams=basic_sim_params)
-	add_to_cached(param_string, SimModule.AgglomeratedSimResults.from_sim_results(results))	
+	add_to_cached(param_string, SimModule.AgglomeratedSimResults.from_sim_results(results), results.total_consumption.get_sum())	
 	buf = io.BytesIO()
 	fig, subplots = plt.subplots(2,1)
 	subplots[0].plot(importe.dates, importe.power,'r', label="imported power")
@@ -127,7 +128,7 @@ def importexportView(request : HttpRequest) -> HttpResponse:
 def importexportAPI(request : HttpRequest) -> HttpResponse:
 	basic_sim_params : SimParams = get_ressource("basic_sim_params")
 	(importe, exporte, import_export_ratio, production_before_battery, battery_charge, results, param_string) = impexp.get_import_export_curves(request, basic_sim_params)
-	add_to_cached(param_string, SimModule.AgglomeratedSimResults.from_sim_results(results))	
+	add_to_cached(param_string, SimModule.AgglomeratedSimResults.from_sim_results(results), results.total_consumption.get_sum())	
 	responseData = json.dumps({
 		"dates"                     : dateToJsonData(importe.dates),
 		"imported_energy"           : importe.power.tolist() if importe != None else None,
@@ -142,14 +143,19 @@ def importexportAPI(request : HttpRequest) -> HttpResponse:
 @csrf_exempt
 def get_agglomerated_results(request : HttpRequest) -> HttpResponse:
 	key = impexp.get_params_as_string(request)
-	response_data : SimModule.AgglomeratedSimResults = get_from_cache(key)
-	if (response_data == False):
+	cached_result = get_from_cache(key)
+	if (cached_result == False):
 		printw("cache miss : ", key)
 		basic_sim_params : SimParams = get_ressource("basic_sim_params")
 		(importe, exporte, import_export_ratio, production_before_battery, battery_charge, results, param_string) = impexp.get_import_export_curves(request, basic_sim_params)
 		response_data = SimModule.AgglomeratedSimResults.from_sim_results(results)
-		add_to_cached(param_string, response_data)
+		consumption = results.total_consumption.get_sum()
+		add_to_cached(param_string, response_data, consumption)
+	else:
+		response_data = cached_result[0]
+		consumption   = cached_result[1]
 	response_json = {
+		"Conso sur la période concernée (GWh)"     : consumption                    * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) / 1e9,
 		"energie importee (GWh)"                   : response_data.imported_power   * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) * 365 * 24/ 1e9,
 		"energie exportee (GWh)"                   : response_data.exported_power   * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) * 365 * 24/ 1e9,
 		"puissance max d'import (MW)"              : response_data.import_max       * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) / 1e6,

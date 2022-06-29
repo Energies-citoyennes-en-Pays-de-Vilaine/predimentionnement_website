@@ -61,27 +61,43 @@ function updateChart(data, name, labeledKeys){
 	Plotly.redraw(name)
 }
 
-function callback(response){
-	responseData = JSON.parse(response)
-	labeledKeys = [{
-		dataApiName : "imported_energy",
-		label: "import (W/habitant)",
-		color:'rgb(75, 192, 192)',
-	},
+function callback(params){
+	return (response) => 
 	{
-		dataApiName : "exported_energy",
-		label: "export (W/habitant)",
-		color:'rgb(75, 192, 192)',
+		responseData = JSON.parse(response)
+		labeledKeys = [{
+			dataApiName : "imported_energy",
+			label: "import (W/habitant)",
+			color:'rgb(75, 192, 192)',
+		},
+		{
+			dataApiName : "exported_energy",
+			label: "export (W/habitant)",
+			color:'rgb(75, 192, 192)',
+		}
+		]
+		console.log(responseData)
+		if (window.plotData == undefined)
+			createChart(responseData, "mcanvas", labeledKeys)
+		else
+			updateChart(responseData, "mcanvas", labeledKeys)
+		dataviewer = document.getElementById("resultslot")
+		sendRequest("/sims/api/results/agglomerated_result", params, () => {
+			dataviewer.innerHTML = ""
+			responseJSON = JSON.parse(xhr.response)
+			for (element of Object.keys(responseJSON))
+			{
+				div = document.createElement("div")
+				div.innerText = element + " : " + responseJSON[element]	
+				div.style = "padding-right:10px; display: inline-block;"
+				console.log(element)
+				dataviewer.appendChild(div)
+			}
+		})
 	}
-	]
-	console.log(responseData)
-	if (window.plotData == undefined)
-		createChart(responseData, "mcanvas", labeledKeys)
-	else
-		updateChart(responseData, "mcanvas", labeledKeys)
 }
 
-sendRequest("/sims/api/ie", params, callback )
+sendRequest("/sims/api/ie", params, callback(params) )
 function actualize(params){
 	return function(){
 		values = []
@@ -95,7 +111,7 @@ function actualize(params){
 			elem = document.getElementById(param.paramName)
 			values [param.paramName] = elem.value
 		}
-		sendRequest("/sims/api/ie", values, callback )
+		sendRequest("/sims/api/ie", values, callback(values) )
 	}
 }
 window.addEventListener("load", function(){

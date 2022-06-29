@@ -13,6 +13,9 @@ window.generateForm = function(docid, graphType, params, actualize){
 		imgToPut.class = "singlegraphstatic"
 		controls = document.createElement("div")
 		controls.className = "singlegraphstatic controls"
+		resultSlot = document.createElement("div")
+		resultSlot.className = "aggregated-results"
+		resultSlot.id = "resultslot"
 		imgdiv.appendChild(imgToPut)
 		slot.appendChild(imgdiv)
 		slot.appendChild(controls)
@@ -22,6 +25,9 @@ window.generateForm = function(docid, graphType, params, actualize){
 		controls = document.createElement("div")
 		controls.className = "singlegraphstatic controls"
 		slot.appendChild(controls)
+		resultSlot = document.createElement("div")
+		resultSlot.className = "aggregated-results"
+		resultSlot.id = "resultslot"
 	}
 	else if (graphType == GRAPH_3D_DYNAMIC)
 	{
@@ -133,6 +139,9 @@ window.generateForm = function(docid, graphType, params, actualize){
 			}
 			controls.appendChild(div)
 		}
+	}
+	if (graphType == GRAPH_2D_STATIC || graphType == GRAPH_2D_DYNAMIC){
+		controls.appendChild(resultSlot)
 	}
 }
 window.setIntParam = function(paramName, description, defaultValue = 5, formType = "number")

@@ -23,11 +23,21 @@
 				}
 				imgToPut.src = "/sims/graphs/ie2?" + values.join("&")
 				imgToPut.onload = () => {
-					dataviewer = document.getElementsByClassName("dataviewer")[0]
+					dataviewer = document.getElementById("resultslot")
 					let xhr = new XMLHttpRequest()
 					xhr.onload = () => {
 						console.log({response : xhr.response})
-						dataviewer.innerText = xhr.response
+						dataviewer.innerHTML = ""
+						responseJSON = JSON.parse(xhr.response)
+						for (element of Object.keys(responseJSON))
+						{
+							div = document.createElement("div")
+							div.innerText = element + " : " + responseJSON[element]	
+							div.style = "padding-right:10px; display: inline-block;"
+							console.log(element)
+							dataviewer.appendChild(div)
+						}
+						
 					}
 					xhr.open("GET", "/sims/api/results/agglomerated_result?" + values.join("&"))
 					xhr.send()
@@ -57,7 +67,6 @@
 </head>
 <body>
 	<div class="singlegraphstatic" id="import_export">
-
 	</div>
 	<div class="dataviewer"></div>
 </body>

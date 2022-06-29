@@ -34,9 +34,12 @@
 	right: 0;
 	top: 0;
 	width:35%;
-	height: 100%;
+	height: fit-content;
 	background-color: aquamarine;
 }
 .xy{
 	width: 100%;
+}
+.aggregated-results{
+	background-color: lightgreen;
 }
