@@ -27,7 +27,7 @@ def add_to_cached(key : str, values : SimModule.AgglomeratedSimResults, consumpt
 	else:
 		cached_agglo_sim_results[key]["time_used"] += 1
 	while (len(cached_agglo_sim_results.keys()) > CACHE_SIZE):
-		sorted_keys = sorted(cached_agglo_sim_results.keys(), lambda x : cached_agglo_sim_results[x]["time_used"])
+		sorted_keys = sorted(cached_agglo_sim_results.keys(), key=lambda x : cached_agglo_sim_results[x]["time_used"])
 		if key == sorted_keys[0]:
 			del cached_agglo_sim_results[sorted_keys[1]]
 		else:
