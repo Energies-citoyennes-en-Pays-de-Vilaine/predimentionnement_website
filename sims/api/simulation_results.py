@@ -238,13 +238,6 @@ def get_availible_results_index(request : HttpRequest) -> HttpResponse:
 			"short_name"      :	"exports",
 			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e9,
 		},
-		"autoconso"        :
-		{
-			"index"           : sim_result_index.autoconso.value,
-			"name"            : "autoconsommation (%)",
-			"short_name"      : "autoconsommation",
-			"suggested_scale" : 100,
-		},
 		"imported_time"    :
 		{
 			"index"           : sim_result_index.import_time.value,
@@ -307,6 +300,34 @@ def get_availible_results_index(request : HttpRequest) -> HttpResponse:
 			"name"            : "valeur maximale d'import(GWh/an)",
 			"short_name"      : "import max",
 			"suggested_scale" : (config.CA_REDON_POPULATION + config.CA_PONTCHATEAU_POPULATION) * 365 * 24 / 1e9,
+		},
+		"coverage" :
+		{
+			"index"           : sim_result_index.coverage.value,
+			"name"            : "taux de couverture global(%)",
+			"short_name"      : "couverture globale",
+			"suggested_scale" : 100,
+		},
+		"coverage_avg" :
+		{
+			"index"           : sim_result_index.coverage_avg.value,
+			"name"            : "moyenne temporelle du taux de couverture(%)",
+			"short_name"      : "moyenne couverture",
+			"suggested_scale" : 100,
+		},
+		"autoconso" :
+		{
+			"index"           : sim_result_index.autoconso.value,
+			"name"            : "taux d'autoconsommation (%)",
+			"short_name"      : "autoconsommation",
+			"suggested_scale" : 100,
+		},
+		"autoprod" :
+		{
+			"index"           : sim_result_index.autoprod.value,
+			"name"            : "taux d'auto-production (%)",
+			"short_name"      : "auto-production",
+			"suggested_scale" : 100,
 		},
 	})
 	response = HttpResponse(responseData)
