@@ -24,6 +24,9 @@ def get_params(request : HttpRequest) -> Tuple:
 	rolling_average_period    = get_int_param (request, "ra_period", 24)
 	has_flexibility           = get_bool_param(request, "has_flexibility", False)
 	flexibility_ratio         = get_float_param(request, "flexibility_ratio", 5) / 100.0
+	res_ratio                 = get_float_param(request, "res_ratio", 1.0)
+	ent_ratio                 = get_float_param(request, "ent_ratio", 1.0)
+	pro_ratio                 = get_float_param(request, "pro_ratio", 1.0)
 	return (
 		prod_per_windturbine     , 
 		has_wind                 , 
@@ -42,7 +45,10 @@ def get_params(request : HttpRequest) -> Tuple:
 		has_rolling_average      , 
 		rolling_average_period   , 
 		has_flexibility          , 
-		flexibility_ratio         
+		flexibility_ratio        ,
+		res_ratio                ,
+		ent_ratio                ,
+		pro_ratio
 	)
 
 def get_params_as_string(request : HttpRequest) -> str:
@@ -54,25 +60,28 @@ def get_params_as_string(request : HttpRequest) -> str:
 def get_import_export_curves(request:HttpRequest, simParams : SimParams) -> Tuple[PowerData, PowerData, PowerData, PowerData, PowerData]:
 	#import, export, needed import ratio
 	#get config for this problem
-	(	
-		prod_per_windturbine      , 
-		has_wind                  , 
-		has_solar                 , 
-		has_bioenergy             , 
-		wind_turbine_count        , 
-		solar_power               , 
-		bioenergy_power           , 
-		total_pop                 , 
-		has_battery               , 
-		battery_capacity          , 
-		scaling_factor            , 
-		begin                     , 
-		end                       , 
-		date_slice_only_after_sim , 
-		has_rolling_average       , 
-		rolling_average_period    , 
-		has_flexibility           , 
-		flexibility_ratio
+	(
+		prod_per_windturbine     , 
+		has_wind                 , 
+		has_solar                , 
+		has_bioenergy            , 
+		wind_turbine_count       , 
+		solar_power              , 
+		bioenergy_power          , 
+		total_pop                , 
+		has_battery              , 
+		battery_capacity         , 
+		scaling_factor           , 
+		begin                    , 
+		end                      , 
+		date_slice_only_after_sim, 
+		has_rolling_average      , 
+		rolling_average_period   , 
+		has_flexibility          , 
+		flexibility_ratio        ,
+		res_ratio                ,
+		ent_ratio                ,
+		pro_ratio
 	) = get_params(request) 
 	sim_params                       = simParams.get_clone()
 	sim_params.has_battery           = has_battery
@@ -88,6 +97,7 @@ def get_import_export_curves(request:HttpRequest, simParams : SimParams) -> Tupl
 	sim_params.bioenergy_power       = bioenergy_power * scaling_factor
 	sim_params.has_flexibility       = has_flexibility
 	sim_params.flexibility_ratio     = flexibility_ratio
+	sim_params.consumer_contrib      = [res_ratio, ent_ratio, pro_ratio]
 	if not date_slice_only_after_sim == True:
 		sim_params.begin                 = begin
 		sim_params.end                   = end
