@@ -20,6 +20,7 @@ def get_params(request : HttpRequest) -> Tuple:
 	begin                     = get_date_param(request, "begin", None)
 	end                       = get_date_param(request, "end", None)
 	date_slice_only_after_sim = get_bool_param(request, "slice_after_sim", True) #slice only after sim
+	scale_before_slice        = get_bool_param(request, "scale_before_slice", False)
 	has_rolling_average       = get_bool_param(request, "has_ra", True) #RA is rolling_average, to eco url param size
 	rolling_average_period    = get_int_param (request, "ra_period", 24)
 	has_flexibility           = get_bool_param(request, "has_flexibility", False)
@@ -42,6 +43,7 @@ def get_params(request : HttpRequest) -> Tuple:
 		begin                    , 
 		end                      , 
 		date_slice_only_after_sim, 
+		scale_before_slice       ,
 		has_rolling_average      , 
 		rolling_average_period   , 
 		has_flexibility          , 
@@ -74,7 +76,8 @@ def get_import_export_curves(request:HttpRequest, simParams : SimParams) -> Tupl
 		scaling_factor           , 
 		begin                    , 
 		end                      , 
-		date_slice_only_after_sim, 
+		date_slice_only_after_sim,
+		scale_before_slice       , 
 		has_rolling_average      , 
 		rolling_average_period   , 
 		has_flexibility          , 
@@ -101,6 +104,7 @@ def get_import_export_curves(request:HttpRequest, simParams : SimParams) -> Tupl
 	if not date_slice_only_after_sim == True:
 		sim_params.begin                 = begin
 		sim_params.end                   = end
+	sim_params.scale_before_slice    =  scale_before_slice
 	sim_params.check_and_convert_params()
 	results : SimResults = simulate_senario(sim_params)
 	
