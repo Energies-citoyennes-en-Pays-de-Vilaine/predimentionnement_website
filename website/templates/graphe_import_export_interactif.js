@@ -116,10 +116,10 @@ function actualize(params){
 window.addEventListener("load", function(){
 	window.generateForm("import_export", window.GRAPH_2D_DYNAMIC,
 	[
-		window.setFloatParam("solar_power", "Puissance moyenne de la production solaire (MW) ", 3.44),
-		window.setFloatParam("bioenergy_power", "Puissance moyenne de la production bio-énergétique (MW) ", 2.07),
-		window.setFloatParam("wind_tubine_prod", "Puissance moyenne de la production d'une éolienne (MW) ", 0.577),
-		window.setIntParam("wind_turbine_count", "Nombre d'éoliennes ", 13),
+		window.setFloatParam("solar_power", "Puissance moyenne de la production solaire (MW) ", 1.31),
+		window.setFloatParam("bioenergy_power", "Puissance moyenne de la production bio-énergétique (MW) ", 0.69),
+		window.setFloatParam("wind_tubine_prod", "Puissance moyenne de la production d'une éolienne (MW) ", 0.728),
+		window.setIntParam("wind_turbine_count", "Nombre d'éoliennes ", 19),
 		window.setBoolParam("has_battery", "Stockage présent ", false),
 		window.setFloatParam("battery_capacity", "Stockage installé (MWh) ", 2),
 		window.setBoolParam("has_ra", "Moyenne glissante ", true),

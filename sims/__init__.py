@@ -7,7 +7,7 @@ import time
 thisPath = os.path.dirname(__file__)
 print(thisPath)
 dl = dataloader()
-prod_eol   = dl.load_prod(thisPath + "/data/Prod Eol Elfe.csv")
+prod_eol   = dl.load_wind_prod(thisPath + "/data/scaled_wind_prod.csv")
 user       = dl.load_one_user(thisPath +"/data/averageUser0.csv")
 ent        = dl.load_one_user(thisPath +"/data/ENT_MERGED.csv")
 pro        = dl.load_one_user(thisPath +"/data/PRO_MERGED.csv")
