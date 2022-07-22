@@ -25,9 +25,9 @@ def get_params(request : HttpRequest) -> Tuple:
 	rolling_average_period    = get_int_param (request, "ra_period", 24)
 	has_flexibility           = get_bool_param(request, "has_flexibility", False)
 	flexibility_ratio         = get_float_param(request, "flexibility_ratio", 5) / 100.0
-	res_ratio                 = get_float_param(request, "res_ratio", 1.0)
-	ent_ratio                 = get_float_param(request, "ent_ratio", 1.0)
-	pro_ratio                 = get_float_param(request, "pro_ratio", 1.0)
+	res_ratio                 = get_float_param(request, "res_ratio", 100.0)
+	ent_ratio                 = get_float_param(request, "ent_ratio", 100.0)
+	pro_ratio                 = get_float_param(request, "pro_ratio", 100.0)
 	return (
 		prod_per_windturbine     , 
 		has_wind                 , 
@@ -48,9 +48,9 @@ def get_params(request : HttpRequest) -> Tuple:
 		rolling_average_period   , 
 		has_flexibility          , 
 		flexibility_ratio        ,
-		res_ratio                ,
-		ent_ratio                ,
-		pro_ratio
+		res_ratio / 100          ,
+		ent_ratio / 100          ,
+		pro_ratio / 100
 	)
 
 def get_params_as_string(request : HttpRequest) -> str:

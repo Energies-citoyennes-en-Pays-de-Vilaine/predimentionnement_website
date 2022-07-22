@@ -17,8 +17,8 @@ function sendRequest(url, requestParams, callback){
 }
 
 params = {
-	"begin" : "2020-01-01",
-	"end"   : "2020-02-01"
+	"begin" : "2021-01-01",
+	"end"   : "2021-02-01"
 }
 
 function createChart(data, name, labeledKeys){
@@ -124,14 +124,14 @@ window.addEventListener("load", function(){
 		window.setFloatParam("battery_capacity", "Stockage installé (MWh) ", 2),
 		window.setBoolParam("has_ra", "Moyenne glissante ", true),
 		window.setFloatParam("ra_period", "Période sur laquelle la moyenne glissante est effectuée(H)", 24),
-		window.setDateParam("begin", "Date de départ de la simulation ", "2020-01-01"),
-		window.setDateParam("end", "Date de fin de la simulation ", "2020-02-01"),
+		window.setDateParam("begin", "Date de départ de la simulation ", "2021-01-01"),
+		window.setDateParam("end", "Date de fin de la simulation ", "2021-02-01"),
 		window.setBoolParam("slice_after_sim", "Simuler sur toutes les données", true),
 		window.setBoolParam("scale_before_slice", "Mise à l'échelle sur toutes les données", false),
 		window.setBoolParam("has_flexibility", "Flexibilité présente ?", false),
 		window.setFloatParam("flexibility_ratio", "Flexibilité des utilisateurs (en % de leur consommation)", 5),
-		window.setFloatParam("res_ratio", "Pourcentage de la consommation 'RES' actuelle pour la simulation", 1.0),
-		window.setFloatParam("ent_ratio", "Pourcentage de la consommation 'ENT' actuelle pour la simulation", 1.0),
-		window.setFloatParam("pro_ratio", "Pourcentage de la consommation 'PRO' actuelle pour la simulation", 1.0),
+		window.setFloatParam("res_ratio", "Pourcentage de la consommation 'RES' actuelle pour la simulation", 100.0),
+		window.setFloatParam("ent_ratio", "Pourcentage de la consommation 'ENT' actuelle pour la simulation", 100.0),
+		window.setFloatParam("pro_ratio", "Pourcentage de la consommation 'PRO' actuelle pour la simulation", 100.0),
 	], actualize)
 })
