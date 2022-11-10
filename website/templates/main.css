@@ -43,3 +43,25 @@
 .aggregated-results{
 	background-color: lightgreen;
 }
+.centered-title{
+	text-align: center;
+	border-bottom-width: 2px;
+	border-bottom-color: black;
+	border-bottom-style: solid;
+}
+.interactive-curves{
+	display: inline-block;
+	width: 49vw;
+	border-width: 2px;
+	border-color: black;
+	border-style: solid;
+	font-size: 20px;
+}
+.static-curves{
+	display: inline-block;
+	width: 49vw;
+	border-width: 2px;
+	border-color: black;
+	border-style: solid;
+	font-size: 20px;
+}

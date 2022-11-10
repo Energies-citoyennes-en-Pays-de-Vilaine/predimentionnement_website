@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="main.css">
+    <title>courbes chargées dans l'outil de prédimentionnement</title>
+</head>
+<body>
+    <div class="interactive-curves">
+        <h1 class="centered-title">courbes de l'outil interactif</h1>
+        <div>
+            origine de la courbe de consommation du panel résidentiel : {{interactive.RES_CURVE_NAME}}
+            <br>
+            consommation totale du panel résidentiel : {{interactive.RES_TOTAL_CONSUMPTION}} MWh
+            <br>
+            origine de la courbe de consommation du panel entreprise : {{interactive.ENT_CURVE_NAME}}
+            <br>
+            consommation totale du panel entreprise : {{interactive.ENT_TOTAL_CONSUMPTION}} MWh
+            <br>
+            origine de la courbe de consommation du panel pro : {{interactive.PRO_CURVE_NAME}}
+            <br>
+            consommation totale du panel pro : {{interactive.PRO_TOTAL_CONSUMPTION}} MWh
+            <br> 
+            origine de la courbe de production éolienne : {{interactive.EOL_CURVE_NAME}}
+            <br> 
+            origine de la courbe de production solaire : {{interactive.SUN_CURVE_NAME}}
+            <br> 
+            origine de la courbe de production de bioénergie : {{interactive.BIO_CURVE_NAME}}
+        </div>
+    </div>
+    <div class="static-curves">
+        <h1 class="centered-title">données initiales des simulations chargées</h1>
+        <div>
+            origine de la courbe de consommation du panel résidentiel : {{static.RES_CURVE_NAME}}
+            <br>
+            consommation totale du panel résidentiel : {{static.RES_TOTAL_CONSUMPTION}} MWh
+            <br>
+            origine de la courbe de consommation du panel entreprise : {{static.ENT_CURVE_NAME}}
+            <br>
+            consommation totale du panel entreprise : {{static.ENT_TOTAL_CONSUMPTION}} MWh
+            <br>
+            origine de la courbe de consommation du panel pro : {{static.PRO_CURVE_NAME}}
+            <br>
+            consommation totale du panel pro : {{static.PRO_TOTAL_CONSUMPTION}} MWh
+            <br> 
+            origine de la courbe de production éolienne : {{static.EOL_CURVE_NAME}}
+            <br> 
+            origine de la courbe de production solaire : {{static.SUN_CURVE_NAME}}
+            <br> 
+            origine de la courbe de production de bioénergie : {{static.BIO_CURVE_NAME}}
+        </div>
+    </div>
+</body>
+</html>
