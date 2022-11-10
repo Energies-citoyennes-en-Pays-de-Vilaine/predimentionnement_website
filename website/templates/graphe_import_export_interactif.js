@@ -67,12 +67,12 @@ function callback(params){
 		responseData = JSON.parse(response)
 		labeledKeys = [{
 			dataApiName : "imported_energy",
-			label: "import (W/habitant)",
+			label: "import (Wh/foyer)",
 			color:'rgb(75, 192, 192)',
 		},
 		{
 			dataApiName : "exported_energy",
-			label: "export (W/habitant)",
+			label: "export (Wh/foyer)",
 			color:'rgb(75, 192, 192)',
 		}
 		]
@@ -116,22 +116,21 @@ function actualize(params){
 window.addEventListener("load", function(){
 	window.generateForm("import_export", window.GRAPH_2D_DYNAMIC,
 	[
-		window.setFloatParam("solar_power", "Puissance moyenne de la production solaire (MW) ", 1.31),
-		window.setFloatParam("bioenergy_power", "Puissance moyenne de la production bio-énergétique (MW) ", 0.69),
-		window.setFloatParam("wind_tubine_prod", "Puissance moyenne de la production d'une éolienne (MW) ", 0.728),
-		window.setIntParam("wind_turbine_count", "Nombre d'éoliennes ", 19),
-		window.setBoolParam("has_battery", "Stockage présent ", false),
-		window.setFloatParam("battery_capacity", "Stockage installé (MWh) ", 2),
-		window.setBoolParam("has_ra", "Moyenne glissante ", true),
-		window.setFloatParam("ra_period", "Période sur laquelle la moyenne glissante est effectuée(H)", 24),
-		window.setDateParam("begin", "Date de départ de la simulation ", "2021-01-01"),
-		window.setDateParam("end", "Date de fin de la simulation ", "2021-02-01"),
-		window.setBoolParam("slice_after_sim", "Simuler sur toutes les données", true),
-		window.setBoolParam("scale_before_slice", "Mise à l'échelle sur toutes les données", false),
-		window.setBoolParam("has_flexibility", "Flexibilité présente ?", false),
-		window.setFloatParam("flexibility_ratio", "Flexibilité des utilisateurs (en % de leur consommation)", 5),
-		window.setFloatParam("res_ratio", "Pourcentage de la consommation 'RES' actuelle pour la simulation", 100.0),
-		window.setFloatParam("ent_ratio", "Pourcentage de la consommation 'ENT' actuelle pour la simulation", 100.0),
-		window.setFloatParam("pro_ratio", "Pourcentage de la consommation 'PRO' actuelle pour la simulation", 100.0),
+		window.setFloatParam("solar_power", "Energie annuelle de la production solaire(MWh/an) ", 1.31 * 8760),
+				window.setFloatParam("wind_tubine_prod", "Energie annuelle de la production éolienne (MWh/an) ", 0.728 * 8760 * 19),
+				window.setFloatParam("bioenergy_power", "Energie annuelle de la production bioénergétique (MWh/an) ", 0.69 * 8760),
+				window.setBoolParam("has_battery", "Stockage présent ", false),
+				window.setFloatParam("battery_capacity", "Stockage installé (MWh) ", 2),
+				window.setBoolParam("has_flexibility", "Flexibilité présente ?", false),
+				window.setFloatParam("flexibility_ratio", "Fexibilité des utilisateurs (en % de leur consommation)", 5),
+				window.setFloatParam("res_ratio", "Pourcentage de la consommation 'RES' actuelle pour la simulation", 100.0),
+				window.setFloatParam("ent_ratio", "Pourcentage de la consommation 'ENT' actuelle pour la simulation", 100.0),
+				window.setFloatParam("pro_ratio", "Pourcentage de la consommation 'PRO' actuelle pour la simulation", 100.0),
+				window.setBoolParam("has_ra", "Moyenne glissante ", true),
+				window.setFloatParam("ra_period", "Période sur laquelle la moyenne glissante est effectuée(H)", 24),
+				window.setDateParam("begin", "Date de départ de la simulation ", "2021-01-01"),
+				window.setDateParam("end", "Date de fin de la simulation ", "2022-01-01"),
+				window.setBoolParam("slice_after_sim", "Simuler sur toutes les données", true),
+				window.setBoolParam("scale_before_slice", "Mise à l'échelle sur toutes les données", false),
 	], actualize)
 })

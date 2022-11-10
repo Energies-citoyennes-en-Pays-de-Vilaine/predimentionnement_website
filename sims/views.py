@@ -17,12 +17,13 @@ from django.views.decorators.csrf import csrf_exempt
 
 cached_agglo_sim_results = {}
 
-def add_to_cached(key : str, values : SimModule.AgglomeratedSimResults, consumption : float):
+def add_to_cached(key : str, values : SimModule.AgglomeratedSimResults, consumption : float, production: float):
 	if (key not in cached_agglo_sim_results.keys()):
 		cached_agglo_sim_results[key] = {
 			"time_used"   : 0,
 			"data"        : values,
 			"consumption" : consumption,
+			"production"  : production,
 		}
 	else:
 		cached_agglo_sim_results[key]["time_used"] += 1
@@ -38,7 +39,7 @@ def get_from_cache(key : str) -> SimModule.AgglomeratedSimResults:
 		return False
 	else:
 		cached_agglo_sim_results[key]["time_used"] += 1
-		return (cached_agglo_sim_results[key]["data"], cached_agglo_sim_results[key]["consumption"])
+		return (cached_agglo_sim_results[key]["data"], cached_agglo_sim_results[key]["consumption"], cached_agglo_sim_results[key]["production"])
 
 def prepareData(request: HttpRequest):
 	nb_eol          = get_float_param(request, "nb_eol",  float(conf.NB_EOLIENNE))
@@ -110,7 +111,7 @@ def ie(request : HttpRequest) -> HttpResponse:
 def importexportView(request : HttpRequest) -> HttpResponse:
 	basic_sim_params = get_ressource("basic_sim_params")
 	(importe, exporte, import_export_ratio, production_before_battery, battery_charge, results, param_string) = impexp.get_import_export_curves(request=request, simParams=basic_sim_params)
-	add_to_cached(param_string, SimModule.AgglomeratedSimResults.from_sim_results(results), results.total_consumption.get_sum())	
+	add_to_cached(param_string, SimModule.AgglomeratedSimResults.from_sim_results(results), results.total_consumption.get_average(), results.total_production.get_average())	
 	buf = io.BytesIO()
 	fig, subplots = plt.subplots(2,1)
 	subplots[0].plot(importe.dates, importe.power,'r', label="imported power")
@@ -128,7 +129,7 @@ def importexportView(request : HttpRequest) -> HttpResponse:
 def importexportAPI(request : HttpRequest) -> HttpResponse:
 	basic_sim_params : SimParams = get_ressource("basic_sim_params")
 	(importe, exporte, import_export_ratio, production_before_battery, battery_charge, results, param_string) = impexp.get_import_export_curves(request, basic_sim_params)
-	add_to_cached(param_string, SimModule.AgglomeratedSimResults.from_sim_results(results), results.total_consumption.get_sum())	
+	add_to_cached(param_string, SimModule.AgglomeratedSimResults.from_sim_results(results), results.total_consumption.get_average(), results.total_production.get_average())	
 	responseData = json.dumps({
 		"dates"                     : dateToJsonData(importe.dates),
 		"imported_energy"           : importe.power.tolist() if importe != None else None,
@@ -149,29 +150,24 @@ def get_agglomerated_results(request : HttpRequest) -> HttpResponse:
 		basic_sim_params : SimParams = get_ressource("basic_sim_params")
 		(importe, exporte, import_export_ratio, production_before_battery, battery_charge, results, param_string) = impexp.get_import_export_curves(request, basic_sim_params)
 		response_data = SimModule.AgglomeratedSimResults.from_sim_results(results)
-		consumption = results.total_consumption.get_sum()
-		add_to_cached(param_string, response_data, consumption)
+		consumption = results.total_consumption.get_average()
+		production  = results.total_production.get_average()
+		add_to_cached(param_string, response_data, consumption, production)
 	else:
 		response_data = cached_result[0]
 		consumption   = cached_result[1]
+		production    = cached_result[2]
 	response_json = {
-		"Conso sur la période concernée (kWh)"     : consumption                    / 1e3,
-		"energie importee (GWh)"                   : response_data.imported_power   * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) * 365 * 24/ 1e9,
-		"energie exportee (GWh)"                   : response_data.exported_power   * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) * 365 * 24/ 1e9,
-		"puissance max d'import (MW)"              : response_data.import_max       * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) / 1e6,
-		"puissance max d'export (MW)"              : response_data.export_max       * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) / 1e6,
-		"taux horraire d'import (%)"               : response_data.imported_time    * 100,
-		"taux horraire d'export (%)"               : response_data.exported_time    * 100,
-		"5%tile de consommation (MW)"              : response_data.low_conso_peak   * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) / 1e6,
-		"95%tile de consommation (MW)"             : response_data.high_conso_peak  * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) / 1e6,
-		"5%tile d'import (MW)"                     : response_data.low_import_peak  * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) / 1e6,
-		"95%tile d'import (MW)"                    : response_data.high_import_peak * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) / 1e6,
-		"taux d'utilisation du stockage (%)"       : response_data.storage_use      * 100,
-		"taux d'utilisation de la flexibilite (%)" : response_data.flexibility_use  * 100,
-		"taux de couverture global (%)"            : response_data.coverage         * 100,
-		"moyenne du taux couverture horraire (%)"  : response_data.coverage_avg     * 100,
-		"taux d'autoconsommation (%)"              : response_data.autoconso        * 100,
-		"taux d'autoproduction (%)"                : response_data.autoprod         * 100,
+		"Consommation annualisée (MWh/an)"            : 365 * 24 * consumption                / 1e6,
+		"Production annualisée (MWh/an)"              : 365 * 24 * production                 / 1e6,
+		"energie importee (MWh/an)"                   : response_data.imported_power   * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) * 365 * 24/ 1e6,
+		"energie exportee (MWh/an)"                   : response_data.exported_power   * (conf.CA_REDON_POPULATION + conf.CA_PONTCHATEAU_POPULATION) * 365 * 24/ 1e6,
+		"Autoconsommation (%)"                        : response_data.autoconso        * 100,
+		"Autoproduction (%)"                          : response_data.autoprod         * 100,
+		"Couverture globale (%)"                      : response_data.coverage         * 100,
+		"Couverture horraire (%)"                     : response_data.coverage_avg     * 100,
+		"taux horraire d'import (%)"                  : response_data.imported_time    * 100,
+		"taux horraire d'export (%)"                  : response_data.exported_time    * 100,
 	}
 	response = HttpResponse(json.dumps(response_json))
 	response["Content-type"] = "application/json"
